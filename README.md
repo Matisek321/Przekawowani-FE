@@ -1,94 +1,132 @@
-# 10x Astro Starter
+## 1. Project name
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+Przekawowani
 
-## Tech Stack
+## 2. Project description
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+Przekawowani is a social web application for coffee enthusiasts that helps discover beans, submit ratings, and build a transparent community-driven ranking. The MVP emphasizes simplicity (KISS) and a minimal data model:
+- Web-only experience
+- User accounts via Supabase Auth (email + verification)
+- Public catalogs: roaster list, each roaster’s coffees, and a global coffees list
+- Authenticated users can add roasters and coffees
+- Coffee ratings use one primary metric for ranking, plus three descriptive metrics (strength, acidity, aftertaste)
+- Sorting is only by the primary coffee rating
 
-## Prerequisites
+For full product requirements, see `.ai/prd.md`.
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+## 3. Tech stack
 
-## Getting Started
+- Frontend:
+  - Astro 5 (content-focused, fast by default)
+  - React 19 (interactive components where needed)
+  - TypeScript 5 (type safety and IDE support)
+  - Tailwind CSS 4 (utility-first styling)
+  - Shadcn/ui (accessible React UI components)
+- Backend:
+  - Supabase (PostgreSQL, Auth, open source; can be self-hosted)
+- CI/CD and Hosting:
+  - GitHub Actions (CI/CD pipelines)
+  - DigitalOcean (hosting via Docker image)
 
-1. Clone the repository:
+See `.ai/tech-stack.md` for more details.
 
+## 4. Getting started locally
+
+### Prerequisites
+- Node.js 22.14.0 (see `.nvmrc`)
+- npm (bundled with Node.js)
+
+### Quickstart
 ```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
+git clone https://github.com/przeprogramowani/Przekawowani.git
+cd Przekawowani
 
-2. Install dependencies:
+# Use the project’s Node version
+nvm use 22.14.0
 
-```bash
+# Install dependencies
 npm install
-```
 
-3. Run the development server:
-
-```bash
+# Start the dev server
 npm run dev
+# Astro default: http://localhost:4321
 ```
 
-4. Build for production:
-
+### Production build and preview
 ```bash
+# Build for production
 npm run build
+
+# Preview the production build locally
+npm run preview
 ```
 
-## Available Scripts
+Notes:
+- Supabase integration (database/auth) will be wired in as the MVP evolves; refer to `.ai/prd.md` for the planned data model and flows.
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
+## 5. Available scripts
 
-## Project Structure
+- `npm run dev`: Start the Astro development server
+- `npm run build`: Build the production bundle
+- `npm run preview`: Preview the production build locally
+- `npm run astro`: Direct access to the Astro CLI
+- `npm run lint`: Run ESLint
+- `npm run lint:fix`: Auto-fix lint issues when possible
+- `npm run format`: Format the repository with Prettier
 
-```md
-.
-├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
-```
+## 6. Project scope
 
-## AI Development Support
+In scope (MVP):
+- Accounts: registration/login via email with verification; ability to delete account (ratings remain)
+- Profile: one-time, globally unique `display_name` (≤ 32 chars; supports Polish diacritics; allowed separators: space, `-`, `.`)
+- Entities and relations:
+  - Roaster: minimal fields name, city; uniqueness by `(normalized_name, normalized_city)`; normalization via lowercase, trim, unaccent; store originals for display
+  - Coffee: minimal field name; relation 1:N with roaster; uniqueness by `(roaster_id, normalized_name)`
+  - Dedup enforced by unique indexes; no merge of duplicates in MVP
+- Adding and editing:
+  - Any authenticated user can add a roaster
+  - Coffee can only be added from the current roaster view
+  - No edit/delete of roasters/coffees post-creation in MVP
+- Rating:
+  - One rating per user per coffee
+  - Primary metric: Coffee Rating (1–5 with halves), used for sorting and ranking
+  - Required descriptive metrics: strength, acidity, aftertaste (1–5 with halves), for display only
+  - Users can edit only their own rating; no deletion or history
+- Aggregation and ranking:
+  - Coffee score: arithmetic mean of primary Coffee Rating across user ratings
+  - Mark “small sample” for coffees with < 3 ratings
+- Views/pages:
+  - Roaster list
+  - Roaster detail (roaster info, its coffees, “Add coffee” for authenticated users)
+  - Global coffees list
+  - Coffee detail (average primary rating, descriptive metrics, count of ratings; aggregates may be shown instead of full review lists in MVP)
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+Out of scope (MVP):
+- Admin role, moderation, anti‑spam, reporting
+- Editing/deleting roasters and coffees after creation
+- Filtering/sorting by descriptive metrics
+- Recommendations and external integrations
+- Mobile apps, mobile web requirements, accessibility requirements
+- Analytics events and formal KPIs (operational metrics may be derived from the DB)
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
+## 7. Project status
 
-### Cursor IDE
+- Version: 0.0.1
+- Status: MVP in active development
+- Node: 22.14.0
 
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
+Helpful docs:
+- Product Requirements: `.ai/prd.md`
+- Tech Stack Overview: `.ai/tech-stack.md`
 
-### GitHub Copilot
+Badges:
 
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Node 22.14.0](https://img.shields.io/badge/node-22.14.0-43853D?logo=node.js&logoColor=white)
+![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-blue)
 
-### Windsurf
+## 8. License
 
-The `.windsurfrules` file contains AI configuration for Windsurf.
+This project is licensed under the MIT License.
 
-## Contributing
 
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
-
-## License
-
-MIT
