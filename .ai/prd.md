@@ -26,7 +26,7 @@ W społeczności istnieje wielu miłośników kawy. Testowanie różnych kaw jes
 
 3.1 Konta i bezpieczeństwo
 - Rejestracja i logowanie.
-- Możliwość usunięcia konta, po usunięciu konta oceny zostają.
+- Możliwość usunięcia konta, po usunięciu konta oceny też zostają usunięte.
 
 3.2 Profil użytkownika
 - Pole display_name: ustawiane raz, unikalne globalnie, długość ≤ 32, dozwolone znaki alfanumeryczne z polskimi diakrytykami; separatory dozwolone: spacja, „-”, „.”; e‑mail zawsze prywatny.
