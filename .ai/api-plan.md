@@ -71,7 +71,7 @@ Conventions:
 - Path: `/api/roasteries`
 - Description: Public list of roasteries with optional search and city filter.
 - Query params:
-  - `q` (optional; matches name using normalized search; prefix/contains)
+  - `query` (optional; matches name using normalized search; prefix/contains)
   - `city` (optional; normalized exact match)
   - `page` (default 1), `pageSize` (default 20, max 100)
 - Response 200:
