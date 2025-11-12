@@ -177,3 +177,47 @@ curl -i http://localhost:4321/api/profiles/<existing-uuid>
 ```
 
 
+### GET `/api/roasteries`
+
+Public endpoint returning a paginated list of roasteries with optional filters.
+
+- Method: GET
+- Auth: Not required
+- Query:
+  - `q` (optional): string, trimmed, 1..64; contains on normalized name
+  - `city` (optional): string, trimmed, 1..64; exact match on normalized city
+  - `page` (optional): int ≥ 1, default 1
+  - `pageSize` (optional): int 1..100, default 20
+- Responses:
+  - 200 OK
+    ```json
+    {
+      "page": 1,
+      "pageSize": 20,
+      "total": 2,
+      "items": [
+        { "id": "1", "name": "Kawa A", "city": "Warszawa", "createdAt": "2025-11-11T12:00:00.000000Z" }
+      ]
+    }
+    ```
+  - 400 Bad Request
+    ```json
+    { "code": "invalid_request", "message": "Invalid query" }
+    ```
+  - 500 Internal Server Error
+    ```json
+    { "code": "internal_error", "message": "Unexpected server error" }
+    ```
+- Headers:
+  - `Content-Type: application/json; charset=utf-8`
+  - `Cache-Control: public, max-age=60, stale-while-revalidate=120`
+  - `X-Request-Id: <uuid>`
+
+Examples:
+```bash
+curl -i "http://localhost:4321/api/roasteries"
+curl -i "http://localhost:4321/api/roasteries?page=2&pageSize=5"
+curl -i "http://localhost:4321/api/roasteries?q=KAwA%20%C3%81"
+curl -i "http://localhost:4321/api/roasteries?city=Kielc%C3%A9"
+```
+
