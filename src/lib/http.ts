@@ -36,4 +36,16 @@ export function jsonError(code: string, message: string) {
   return json({ code, message }, { status: 500 })
 }
 
+export function jsonUnauthorized(code: string, message: string) {
+  return json({ code, message }, { status: 401 })
+}
+
+export function jsonConflict(code: string, message: string, headers?: Record<string, string>) {
+  return json({ code, message }, { status: 409, headers })
+}
+
+export function jsonCreated(body: JsonBody, headers?: Record<string, string>) {
+  return json(body, { status: 201, headers })
+}
+
 
