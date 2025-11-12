@@ -1,6 +1,11 @@
 import { z } from 'zod'
+import { buildPaginationSchema } from './pagination'
 
-export const GetRoasteriesQuerySchema = z.object({
+export const GetRoasteriesQuerySchema = buildPaginationSchema({
+	defaultPage: 1,
+	defaultPageSize: 20,
+	maxPageSize: 100,
+}).extend({
 	q: z
 		.string()
 		.trim()
@@ -13,8 +18,6 @@ export const GetRoasteriesQuerySchema = z.object({
 		.min(1, 'city must not be empty')
 		.max(64, 'city is too long')
 		.optional(),
-	page: z.coerce.number().int().min(1).default(1),
-	pageSize: z.coerce.number().int().min(1).max(100).default(20),
 })
 
 export type GetRoasteriesQuery = z.infer<typeof GetRoasteriesQuerySchema>

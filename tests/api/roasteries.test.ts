@@ -29,7 +29,7 @@ describe('GET /api/roasteries', () => {
 		const res = await GET(context as any)
 		expect(res.status).toBe(200)
 		expect(res.headers.get('Cache-Control')).toBe('public, max-age=60, stale-while-revalidate=120')
-		expect(res.headers.get('X-Request-Id')).toBeTruthy()
+		expect(res.headers.get('X-Request-Id')).toBeNull()
 
 		const body = await res.json()
 		expect(body).toEqual({

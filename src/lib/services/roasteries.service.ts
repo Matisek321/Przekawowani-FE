@@ -46,4 +46,30 @@ export async function listRoasteries(
 	}
 }
 
+export async function getRoasteryById(
+	client: SupabaseClient,
+	id: string
+): Promise<RoasteryDto | null> {
+	const { data, error } = await client
+		.from('roasteries')
+		.select('id,name,city,created_at')
+		.eq('id', id)
+		.maybeSingle()
+
+	if (error) {
+		throw error
+	}
+
+	if (!data) {
+		return null
+	}
+
+	return {
+		id: data.id,
+		name: data.name,
+		city: data.city,
+		createdAt: data.created_at,
+	}
+}
+
 

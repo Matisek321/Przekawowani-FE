@@ -8,7 +8,6 @@ import { listRoasteries } from '../../lib/services/roasteries.service'
 export const prerender = false
 
 export const GET: APIRoute = async (context) => {
-	const requestId = crypto.randomUUID()
 	try {
 		const url = new URL(context.request.url)
 		const rawQuery = Object.fromEntries(url.searchParams.entries())
@@ -32,7 +31,6 @@ export const GET: APIRoute = async (context) => {
 		const body: RoasteryListResponse = { page, pageSize, total, items }
 		return jsonOk(body, {
 			'Cache-Control': 'public, max-age=60, stale-while-revalidate=120',
-			'X-Request-Id': requestId,
 		})
 	} catch (err) {
 		console.error('[GET /api/roasteries] error', { err })

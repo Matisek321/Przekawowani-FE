@@ -88,12 +88,29 @@ Założenia techniczne:
 ## 5. Historyjki użytkowników
 
 US-001
-Tytuł: Rejestracja i logowanie
-Opis: Jako użytkownik chcę zarejestrować się i zalogować e‑mailem, aby móc dodawać palarnie, kawy i oceny.
-Kryteria akceptacji:
-- Możliwość rejestracji e‑mail + weryfikacja
 
-US-002
+- Tytuł: Bezpieczny dostęp
+- Opis: Jako użytkownik chcę mieć możliwość rejestracji i logowania się do systemu w sposób zapewniający bezpieczeństwo moich danych.
+- Kryteria akceptacji:
+  - Logowanie i rejestracja odbywają się na dedykowanych stronach.
+  - Logowanie wymaga podania adresu email i hasła.
+  - Rejestracja wymaga podania adresu email, hasła i potwierdzenia hasła.
+  - Użytkownik NIE MOŻE korzystać z tworzenia palarni, kaw i oceniania bez logowania się do systemu (US-005 US-007 US-010 US-011).
+  - Użytkownik NIE MOŻE korzystać z funkcji Kolekcji bez logowania się do systemu (US-003).
+  - Użytkownik może logować się do systemu poprzez przycisk w prawym górnym rogu.
+  - Użytkownik może się wylogować z systemu poprzez przycisk w prawym górnym rogu w głównym @Layout.astro.
+  - Nie korzystamy z zewnętrznych serwisów logowania (np. Google, GitHub).
+  - Odzyskiwanie hasła powinno być możliwe.
+
+US-002: Kolekcje reguł
+
+- Tytuł: Kolekcje reguł
+- Opis: Jako użytkownik chcę móc dodawać nowe kawiarnie, kawy i oceniać kawy aby dzielić się swoją opinią
+- Kryteria akceptacji:
+  - Użytkownik może (US-005 US-007 US-010 US-011).
+  - Funkcjonalność przeglądania kawiarni i kaw nie jest dostępna bez logowania się do systemu (US-004, US-006, US-008).
+
+US-003
 Tytuł: Ustawienie display_name
 Opis: Jako użytkownik chcę ustawić widoczną publicznie nazwę display_name przy pierwszym użyciu.
 Kryteria akceptacji:
@@ -101,7 +118,7 @@ Kryteria akceptacji:
 - Nazwa ustawiana jednokrotnie i nieedytowalna później.
 - Błędny lub zajęty display_name powoduje czytelny komunikat błędu.
 
-US-003
+US-004
 Tytuł: Przegląd listy palarni
 Opis: Jako użytkownik chcę zobaczyć listę wszystkich palarni.
 Kryteria akceptacji:
@@ -109,7 +126,7 @@ Kryteria akceptacji:
 - Czas odpowiedzi listy spełnia p95 ≤ 300 ms (dla standardowego rozmiaru strony).
 - Po wybraniu palarni przechodzę do jej widoku.
 
-US-004
+US-005
 Tytuł: Dodanie palarni
 Opis: Jako zalogowany użytkownik chcę dodać nową palarnię (nazwa, miasto).
 Kryteria akceptacji:
@@ -117,14 +134,14 @@ Kryteria akceptacji:
 - Próba dodania duplikatu kończy się komunikatem o duplikacie; wpis nie jest tworzony.
 - Po sukcesie przekierowanie do widoku palarni.
 
-US-005
+US-006
 Tytuł: Widok palarni i jej kaw
 Opis: Jako użytkownik chcę zobaczyć listę kaw danej palarni.
 Kryteria akceptacji:
 - Lista kaw przypiętych do danej palarni jest posortowana po ocenie malejąco.
 - Przycisk „Dodaj kawę” widoczny tylko dla zalogowanych.
 
-US-006
+US-007
 Tytuł: Dodanie kawy z widoku palarni
 Opis: Jako zalogowany użytkownik chcę dodać kawę do aktualnej palarni.
 Kryteria akceptacji:
@@ -132,13 +149,13 @@ Kryteria akceptacji:
 - Walidacja i brak możliwości dodania tej samej kawy po (palarnia_id, normalized_nazwa).
 - Po sukcesie przekierowanie do szczegółu kawy lub listy kaw palarni.
 
-US-007
+US-008
 Tytuł: Posortowana lista wszystkich kaw
 Opis: Jako użytkownik chcę przeglądać posortowaną globalną listę wszystkich kaw.
 Kryteria akceptacji:
 - Użytkownik widzi liste wszystkich kaw posortowaną po ocenie malejąco
 
-US-008
+US-009
 Tytuł: Szczegóły kawy
 Opis: Jako użytkownik chcę zobaczyć szczegóły kawy, średnią „Ocena kawy” i dodatkowe metryki.
 Kryteria akceptacji:
@@ -146,7 +163,7 @@ Kryteria akceptacji:
 - Wyświetl średnie dla metryk: moc, kwasowość, posmak (tylko prezentacja).
 - Lista ocen użytkowników może być ograniczona do agregatów w MVP.
 
-US-009
+US-010
 Tytuł: Wystawienie oceny kawy
 Opis: Jako zalogowany użytkownik chcę ocenić kawę główną metryką oraz metrykami dodatkowymi.
 Kryteria akceptacji:
@@ -154,7 +171,7 @@ Kryteria akceptacji:
 - Wymuszenie jednej oceny per użytkownik per kawa (upsert po user_id + coffee_id).
 - Po zapisaniu aktualizuje się średnia i etykiety na stronie kawy.
 
-US-010
+US-011
 Tytuł: Edycja własnej oceny
 Opis: Jako autor oceny chcę móc ją edytować.
 Kryteria akceptacji:
@@ -162,28 +179,28 @@ Kryteria akceptacji:
 - Brak możliwości usunięcia oceny.
 - Po edycji widoczne są zaktualizowane wartości i średnie.
 
-US-011
+US-012
 Tytuł: Ograniczenia sortowania i filtrowania
 Opis: Jako użytkownik akceptuję, że w MVP sortowanie jest dostępne wyłącznie po „Ocena kawy”.
 Kryteria akceptacji:
 - Brak opcji sortowania i filtrowania po metrykach dodatkowych.
 - UI nie udostępnia nieobsługiwanych opcji.
 
-US-012
+US-013
 Tytuł: Brak edycji/usuwania palarni i kaw
 Opis: Jako użytkownik rozumiem, że nie mogę edytować ani usuwać palarni/kaw po utworzeniu.
 Kryteria akceptacji:
 - Endpointy/akcje edycji i usuwania nie istnieją w UI i API.
 - RLS blokuje UPDATE/DELETE na tabelach palarni i kaw.
 
-US-013
+US-014
 Tytuł: Stabilność i wydajność list
 Opis: Jako użytkownik oczekuję szybkich list.
 Kryteria akceptacji:
 - p95 odpowiedzi list ≤ 300 ms przy standardowych rozmiarach zapytań.
 - Indeksy funkcjonalne są zastosowane do kolumn znormalizowanych.
 
-US-014
+US-015
 Tytuł: URL jako nośnik stanu
 Opis: Jako użytkownik chcę móc dzielić się linkami do list z ich aktualnym stanem.
 Kryteria akceptacji:
