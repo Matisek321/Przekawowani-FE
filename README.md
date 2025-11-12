@@ -129,4 +129,51 @@ Badges:
 
 This project is licensed under the MIT License.
 
+## 9. API
+
+### GET `/api/profiles/{userId}`
+
+Public endpoint returning a minimal public profile by `userId` (UUID).
+
+- Method: GET
+- Auth: Not required
+- Params:
+  - `userId` (path): UUID
+- Responses:
+  - 200 OK
+    ```json
+    {
+      "userId": "f2e9b2a0-2f9a-4e51-9d7b-5b4f0a1c2d3e",
+      "displayName": "Jane Doe",
+      "createdAt": "2025-11-11T12:00:00.000000Z"
+    }
+    ```
+  - 400 Bad Request
+    ```json
+    { "code": "invalid_request", "message": "userId must be a valid UUID" }
+    ```
+  - 404 Not Found
+    ```json
+    { "code": "profile_not_found", "message": "Profile not found" }
+    ```
+  - 500 Internal Server Error
+    ```json
+    { "code": "internal_error", "message": "Unexpected server error" }
+    ```
+- Headers:
+  - `Content-Type: application/json; charset=utf-8`
+  - `Cache-Control: public, max-age=60, stale-while-revalidate=600`
+
+Examples:
+```bash
+# 400
+curl -i http://localhost:4321/api/profiles/not-a-uuid
+
+# 404 (replace with a valid UUID not present in profiles)
+curl -i http://localhost:4321/api/profiles/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+
+# 200 (replace with an existing profile UUID)
+curl -i http://localhost:4321/api/profiles/<existing-uuid>
+```
+
 
