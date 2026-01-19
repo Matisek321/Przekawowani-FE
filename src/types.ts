@@ -8,24 +8,11 @@ type RatingRow = Tables<'ratings'>
 type IsoDateString = ProfileRow['created_at']
 type Uuid = ProfileRow['user_id']
 
-type RatingNumeric = RatingRow['main']
-
 /**
  * Domain-level rating value constrained to the 1.0–5.0 range in 0.5 increments.
  * Derived from the numeric columns stored in `public.ratings` (smallint×2).
  */
-export type RatingScore = Extract<
-  RatingNumeric,
-  | 1
-  | 1.5
-  | 2
-  | 2.5
-  | 3
-  | 3.5
-  | 4
-  | 4.5
-  | 5
->
+export type RatingScore = 1 | 1.5 | 2 | 2.5 | 3 | 3.5 | 4 | 4.5 | 5
 
 /**
  * Generic pagination envelope reused by all list endpoints.
