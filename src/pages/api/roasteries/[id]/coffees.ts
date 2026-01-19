@@ -1,10 +1,9 @@
 import type { APIRoute } from 'astro'
 import { z } from 'zod'
 import { jsonBadRequest, jsonConflict, jsonCreated, jsonError, jsonNotFound, jsonOk, jsonUnauthorized } from '../../../../lib/http'
-import { getRoasteryById } from '../../../../lib/services/roasteries.service'
-import { fetchRoasteryCoffees } from '../../../../lib/services/roasteryCoffees.service'
+import { fetchRoasteryCoffees, RoasteryCoffeesServiceError } from '../../../../lib/services/roasteryCoffees.service'
 import { createCoffee, CoffeeServiceError } from '../../../../lib/services/coffee.service'
-import type { RoasteryCoffeeListResponse, CoffeeDto } from '../../../../types'
+import type { CoffeeDto } from '../../../../types'
 import { buildPaginationSchema } from '../../../../lib/validation/pagination'
 import { coffeePathParamsSchema, createCoffeeCommandSchema } from '../../../../lib/validation/coffees'
 
@@ -30,30 +29,26 @@ export const GET: APIRoute = async (context) => {
 			return jsonBadRequest('invalid_request', 'Invalid query params')
 		}
 
-		const roastery = await getRoasteryById(context.locals.supabase, parsedParams.data.id)
-		if (!roastery) {
-			return jsonNotFound('roastery_not_found', 'Roastery not found')
-		}
-
 		const { page, pageSize } = parsedQuery.data
-		const { items, total } = await fetchRoasteryCoffees(
+		const response = await fetchRoasteryCoffees(
 			context.locals.supabase,
 			parsedParams.data.id,
 			page,
 			pageSize
 		)
 
-		const response: RoasteryCoffeeListResponse = {
-			page,
-			pageSize,
-			total,
-			items,
-		}
-
 		return jsonOk(response, {
 			'Cache-Control': 'public, max-age=60, stale-while-revalidate=120',
 		})
 	} catch (err) {
+		if (err instanceof RoasteryCoffeesServiceError) {
+			if (err.code === 'roastery_not_found') {
+				return jsonNotFound('roastery_not_found', err.message)
+			}
+			console.error('[GET /api/roasteries/{id}/coffees] service error', { err })
+			return jsonError('internal_error', 'Unexpected server error')
+		}
+
 		console.error('[GET /api/roasteries/{id}/coffees] error', { err })
 		return jsonError('internal_error', 'Unexpected server error')
 	}

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { GET, POST } from '../../src/pages/api/roasteries/[id]/coffees'
-import * as roasteriesService from '../../src/lib/services/roasteries.service'
 import * as roasteryCoffeesService from '../../src/lib/services/roasteryCoffees.service'
 import * as coffeeService from '../../src/lib/services/coffee.service'
 import type { CoffeeDto } from '../../src/types'
@@ -31,13 +30,9 @@ describe('GET /api/roasteries/{id}/coffees', () => {
 	})
 
 	it('returns 200 with defaults and payload', async () => {
-		vi.spyOn(roasteriesService, 'getRoasteryById').mockResolvedValueOnce({
-			id: '8a9f4b56-3d2e-4f5d-9c3a-2b1c4d6e7f80',
-			name: 'Kawa A',
-			city: 'Warszawa',
-			createdAt: '2025-11-11T12:00:00.000000Z',
-		})
 		vi.spyOn(roasteryCoffeesService, 'fetchRoasteryCoffees').mockResolvedValueOnce({
+			page: 1,
+			pageSize: 30,
 			items: [
 				{
 					id: 'c1',
@@ -80,13 +75,9 @@ describe('GET /api/roasteries/{id}/coffees', () => {
 	})
 
 	it('supports custom pagination params', async () => {
-		vi.spyOn(roasteriesService, 'getRoasteryById').mockResolvedValueOnce({
-			id: '8a9f4b56-3d2e-4f5d-9c3a-2b1c4d6e7f80',
-			name: 'Kawa A',
-			city: 'Warszawa',
-			createdAt: '2025-11-11T12:00:00.000000Z',
-		})
 		vi.spyOn(roasteryCoffeesService, 'fetchRoasteryCoffees').mockResolvedValueOnce({
+			page: 2,
+			pageSize: 10,
 			items: [],
 			total: 0,
 		})
@@ -109,7 +100,9 @@ describe('GET /api/roasteries/{id}/coffees', () => {
 	})
 
 	it('returns 404 when roastery does not exist', async () => {
-		vi.spyOn(roasteriesService, 'getRoasteryById').mockResolvedValueOnce(null)
+		vi.spyOn(roasteryCoffeesService, 'fetchRoasteryCoffees').mockRejectedValueOnce(
+			new roasteryCoffeesService.RoasteryCoffeesServiceError('roastery_not_found', 'Roastery not found')
+		)
 
 		const context: TestContext = {
 			request: new Request('http://localhost/api/roasteries/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/coffees'),
@@ -143,13 +136,6 @@ describe('GET /api/roasteries/{id}/coffees', () => {
 	})
 
 	it('returns 400 for invalid pagination', async () => {
-		vi.spyOn(roasteriesService, 'getRoasteryById').mockResolvedValueOnce({
-			id: '8a9f4b56-3d2e-4f5d-9c3a-2b1c4d6e7f80',
-			name: 'Kawa A',
-			city: 'Warszawa',
-			createdAt: '2025-11-11T12:00:00.000000Z',
-		})
-
 		const context: TestContext = {
 			request: new Request('http://localhost/api/roasteries/8a9f4b56-3d2e-4f5d-9c3a-2b1c4d6e7f80/coffees?page=0'),
 			params: { id: '8a9f4b56-3d2e-4f5d-9c3a-2b1c4d6e7f80' },
@@ -166,12 +152,6 @@ describe('GET /api/roasteries/{id}/coffees', () => {
 	})
 
 	it('returns 500 on service error', async () => {
-		vi.spyOn(roasteriesService, 'getRoasteryById').mockResolvedValueOnce({
-			id: '8a9f4b56-3d2e-4f5d-9c3a-2b1c4d6e7f80',
-			name: 'Kawa A',
-			city: 'Warszawa',
-			createdAt: '2025-11-11T12:00:00.000000Z',
-		})
 		vi.spyOn(roasteryCoffeesService, 'fetchRoasteryCoffees').mockRejectedValueOnce(new Error('db down'))
 
 		const context: TestContext = {

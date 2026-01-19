@@ -1,9 +1,8 @@
 import type { APIRoute } from 'astro'
 import type { CoffeeListResponse } from '../../types'
-import { jsonBadRequest, jsonError, jsonOk } from '../../lib/http'
+import { json, jsonError, jsonOk } from '../../lib/http'
 import { getCoffeesQuerySchema } from '../../lib/validation/coffees'
-import { normalizeForSearch } from '../../lib/normalization'
-import { listCoffees } from '../../lib/services/coffee.service'
+import { listCoffees } from '../../lib/services/coffees.service'
 
 export const prerender = false
 
@@ -27,26 +26,31 @@ export const prerender = false
  */
 export const GET: APIRoute = async (context) => {
 	try {
-		const url = new URL(context.request.url)
-		const rawQuery = Object.fromEntries(url.searchParams.entries())
+		const rawQuery = Object.fromEntries(context.url.searchParams.entries())
 
 		// Validate query parameters
 		const parsed = getCoffeesQuerySchema.safeParse(rawQuery)
 		if (!parsed.success) {
-			return jsonBadRequest('validation_failed', 'Invalid query parameters')
+			const fields = parsed.error.flatten().fieldErrors
+			return json(
+				{
+					code: 'validation_failed',
+					message: 'Invalid query parameters',
+					fields,
+				},
+				{ status: 400 }
+			)
 		}
 
-		const { page, pageSize, roasteryId, q } = parsed.data
-
-		// Normalize search query if provided
-		const qNorm = q ? normalizeForSearch(q) : undefined
+		const { page, pageSize, roasteryId, q, sort } = parsed.data
 
 		// Fetch coffees from service
 		const { items, total } = await listCoffees(context.locals.supabase, {
 			page,
 			pageSize,
 			roasteryId,
-			qNorm,
+			q,
+			sort,
 		})
 
 		// Build response
