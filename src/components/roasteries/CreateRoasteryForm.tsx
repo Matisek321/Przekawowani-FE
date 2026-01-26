@@ -140,7 +140,7 @@ export function CreateRoasteryForm({ accessToken, onSuccess }: CreateRoasteryFor
           setErrors({ form: 'Sesja wygasła. Zaloguj się ponownie.' })
           // Optionally redirect to login
           setTimeout(() => {
-            window.location.assign('/login?returnTo=/roasteries/new')
+            window.location.assign('/auth/login?returnTo=/roasteries/new')
           }, 2000)
           break
         case 409:

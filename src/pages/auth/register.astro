@@ -1,0 +1,15 @@
+---
+import AuthLayout from "@/layouts/AuthLayout.astro";
+import { RegisterForm } from "@/components/auth/RegisterForm";
+
+// Server-side guard: redirect if already logged in
+// Note: This will be implemented when backend auth is ready
+// const user = Astro.locals.user;
+// if (user) {
+//   return Astro.redirect("/");
+// }
+---
+
+<AuthLayout title="Rejestracja">
+  <RegisterForm client:load />
+</AuthLayout>

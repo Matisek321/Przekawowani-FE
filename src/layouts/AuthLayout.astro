@@ -1,0 +1,59 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} | Przekawowani</title>
+  </head>
+  <body class="min-h-screen bg-background">
+    <div class="min-h-screen flex flex-col">
+      <!-- Header with back link -->
+      <header class="p-4">
+        <a 
+          href="/" 
+          class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="16" 
+            height="16" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            stroke-width="2" 
+            stroke-linecap="round" 
+            stroke-linejoin="round"
+          >
+            <path d="m12 19-7-7 7-7"/>
+            <path d="M19 12H5"/>
+          </svg>
+          Powrót do strony głównej
+        </a>
+      </header>
+
+      <!-- Main content - centered form -->
+      <main class="flex-1 flex items-center justify-center p-4">
+        <div class="w-full max-w-md">
+          <slot />
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="p-4 text-center text-sm text-muted-foreground">
+        <p>&copy; {new Date().getFullYear()} Przekawowani</p>
+      </footer>
+    </div>
+  </body>
+</html>
