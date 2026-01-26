@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 import { useDisplayNameGate } from '@/components/auth/useDisplayNameGate'
-import { useAuthSession } from '@/components/auth/useAuthSession'
 import { CreateRoasteryForm } from '@/components/roasteries/CreateRoasteryForm'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,8 +11,8 @@ import type { RoasteryDto } from '@/types'
  * Handles auth/display_name gate and renders the form.
  */
 export function CreateRoasteryPage() {
-  const { accessToken } = useAuthSession()
-  const { isAllowed, isChecking, isRedirecting, isBlocked, gate } = useDisplayNameGate({
+  const { accessToken, isAllowed, isChecking, isRedirecting, isBlocked, gate } =
+    useDisplayNameGate({
     returnTo: '/roasteries/new',
   })
 

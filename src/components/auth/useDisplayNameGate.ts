@@ -29,7 +29,7 @@ export function useDisplayNameGate({ returnTo }: UseDisplayNameGateOptions) {
     // Not authenticated - redirect to login
     if (status === 'unauthenticated') {
       setGate({ status: 'redirecting', reason: 'unauthenticated' })
-      window.location.assign(`/auth/login?returnTo=${encodeURIComponent(returnTo)}`)
+      window.location.assign(`/login?returnTo=${encodeURIComponent(returnTo)}`)
       return
     }
 
@@ -80,6 +80,9 @@ export function useDisplayNameGate({ returnTo }: UseDisplayNameGateOptions) {
   return {
     gate,
     profile,
+    userId,
+    accessToken,
+    isAuthenticated: status === 'authenticated',
     isAllowed: gate.status === 'allowed',
     isChecking: gate.status === 'checking',
     isRedirecting: gate.status === 'redirecting',

@@ -275,7 +275,7 @@ export function RegisterForm() {
           </CardDescription>
         </CardHeader>
         <CardFooter className="flex flex-col gap-4">
-          <a href="/auth/login" className="w-full">
+          <a href="/login" className="w-full">
             <Button variant="outline" className="w-full">
               Przejdź do logowania
             </Button>
@@ -402,7 +402,7 @@ export function RegisterForm() {
           {/* Login link */}
           <p className="text-center text-sm text-muted-foreground">
             Masz już konto?{' '}
-            <a href="/auth/login" className="text-primary hover:underline">
+            <a href="/login" className="text-primary hover:underline">
               Zaloguj się
             </a>
           </p>

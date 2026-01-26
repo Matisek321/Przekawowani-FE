@@ -230,7 +230,7 @@ export function ResetPasswordForm() {
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <a href="/auth/login" className="w-full">
+          <a href="/login" className="w-full">
             <Button className="w-full">
               Przejdź do logowania
             </Button>

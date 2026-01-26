@@ -40,8 +40,16 @@ export function jsonUnauthorized(code: string, message: string) {
   return json({ code, message }, { status: 401 })
 }
 
+export function jsonForbidden(code: string, message: string) {
+  return json({ code, message }, { status: 403 })
+}
+
 export function jsonConflict(code: string, message: string, headers?: Record<string, string>) {
   return json({ code, message }, { status: 409, headers })
+}
+
+export function jsonTooManyRequests(code: string, message: string) {
+  return json({ code, message }, { status: 429 })
 }
 
 export function jsonCreated(body: JsonBody, headers?: Record<string, string>) {

@@ -1,4 +1,4 @@
-import { useState, useCallback, useId } from 'react'
+import { useState, useCallback, useId, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Loader2, AlertCircle } from 'lucide-react'
+import { createSupabaseBrowserClient } from '@/db/supabase.client'
 
 // ViewModel types
 type LoginFormState = {
@@ -87,6 +88,7 @@ function getErrorMessage(code: string): string {
  */
 export function LoginForm() {
   const formId = useId()
+  const supabase = useMemo(() => createSupabaseBrowserClient(), [])
   
   const [values, setValues] = useState<LoginFormState>({
     email: '',
@@ -157,10 +159,19 @@ export function LoginForm() {
       })
       
       if (response.ok) {
+        const data = await response.json().catch(() => ({}))
+
+        if (data?.session?.accessToken && data?.session?.refreshToken) {
+          await supabase.auth.setSession({
+            access_token: data.session.accessToken,
+            refresh_token: data.session.refreshToken,
+          })
+        }
+
         // Get return URL from query params or default to home
         const urlParams = new URLSearchParams(window.location.search)
-        const returnUrl = urlParams.get('returnUrl') || '/'
-        window.location.assign(returnUrl)
+        const returnTo = urlParams.get('returnTo') || '/'
+        window.location.assign(returnTo)
         return
       }
       
@@ -188,7 +199,7 @@ export function LoginForm() {
     } finally {
       setIsSubmitting(false)
     }
-  }, [values, formId])
+  }, [values, formId, supabase])
 
   const emailId = `${formId}-email`
   const passwordId = `${formId}-password`

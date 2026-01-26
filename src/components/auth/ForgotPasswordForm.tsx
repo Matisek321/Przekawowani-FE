@@ -152,7 +152,7 @@ export function ForgotPasswordForm() {
           </CardDescription>
         </CardHeader>
         <CardFooter className="flex flex-col gap-4">
-          <a href="/auth/login" className="w-full">
+          <a href="/login" className="w-full">
             <Button variant="outline" className="w-full">
               Powrót do logowania
             </Button>
@@ -236,7 +236,7 @@ export function ForgotPasswordForm() {
 
           {/* Back to login link */}
           <a 
-            href="/auth/login" 
+            href="/login" 
             className="text-center text-sm text-muted-foreground hover:text-foreground"
           >
             Powrót do logowania

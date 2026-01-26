@@ -57,7 +57,7 @@ export function AuthButton({ user, displayName }: AuthButtonProps) {
   if (!user) {
     return (
       <Button asChild variant="default" size="sm">
-        <a href="/auth/login">Zaloguj się</a>
+        <a href="/login">Zaloguj się</a>
       </Button>
     )
   }

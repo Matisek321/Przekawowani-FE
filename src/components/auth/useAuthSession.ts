@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { createSupabaseBrowserClient } from '@/db/supabase.client'
 
 type AuthSessionState = {
   status: 'loading' | 'authenticated' | 'unauthenticated'
@@ -7,14 +7,12 @@ type AuthSessionState = {
   accessToken: string | null
 }
 
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_KEY
-
 /**
  * Hook to manage Supabase auth session in client-side React components.
  * Provides userId and accessToken for API calls.
  */
 export function useAuthSession() {
+  const supabase = useMemo(() => createSupabaseBrowserClient(), [])
   const [state, setState] = useState<AuthSessionState>({
     status: 'loading',
     userId: null,
@@ -23,7 +21,6 @@ export function useAuthSession() {
 
   const checkSession = useCallback(async () => {
     try {
-      const supabase = createClient(supabaseUrl, supabaseAnonKey)
       const { data: { session }, error } = await supabase.auth.getSession()
 
       if (error) {
@@ -42,13 +39,42 @@ export function useAuthSession() {
           userId: session.user.id,
           accessToken: session.access_token,
         })
-      } else {
-        setState({
-          status: 'unauthenticated',
-          userId: null,
-          accessToken: null,
-        })
+        return
       }
+
+      const response = await fetch('/api/auth/me', {
+        headers: {
+          'Cache-Control': 'no-store',
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json().catch(() => null)
+
+        if (
+          data?.user?.id &&
+          data?.session?.accessToken &&
+          data?.session?.refreshToken
+        ) {
+          await supabase.auth.setSession({
+            access_token: data.session.accessToken,
+            refresh_token: data.session.refreshToken,
+          })
+
+          setState({
+            status: 'authenticated',
+            userId: data.user.id,
+            accessToken: data.session.accessToken,
+          })
+          return
+        }
+      }
+
+      setState({
+        status: 'unauthenticated',
+        userId: null,
+        accessToken: null,
+      })
     } catch (error) {
       console.error('Error checking session:', error)
       setState({
@@ -57,7 +83,7 @@ export function useAuthSession() {
         accessToken: null,
       })
     }
-  }, [])
+  }, [supabase])
 
   useEffect(() => {
     checkSession()
