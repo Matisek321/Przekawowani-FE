@@ -22,4 +22,11 @@ export const GetRoasteriesQuerySchema = buildPaginationSchema({
 
 export type GetRoasteriesQuery = z.infer<typeof GetRoasteriesQuerySchema>
 
+export const CreateRoasteryBodySchema = z.object({
+	name: z.string().trim().min(1, 'name must not be empty').max(64, 'name is too long'),
+	city: z.string().trim().min(1, 'city must not be empty').max(64, 'city is too long'),
+})
+
+export type CreateRoasteryBody = z.infer<typeof CreateRoasteryBodySchema>
+
 

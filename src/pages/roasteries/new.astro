@@ -1,0 +1,10 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { CreateRoasteryPage } from '@/components/roasteries/CreateRoasteryPage'
+
+export const prerender = false
+---
+
+<Layout title="Dodaj palarnię">
+  <CreateRoasteryPage client:load />
+</Layout>

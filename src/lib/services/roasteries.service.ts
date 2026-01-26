@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '../../db/supabase.client'
-import type { RoasteryDto } from '../../types'
+import type { CreateRoasteryCommand, RoasteryDto } from '../../types'
 
 type ListParams = {
 	qNorm?: string
@@ -62,6 +62,33 @@ export async function getRoasteryById(
 
 	if (!data) {
 		return null
+	}
+
+	return {
+		id: data.id,
+		name: data.name,
+		city: data.city,
+		createdAt: data.created_at,
+	}
+}
+
+export async function createRoastery(
+	client: SupabaseClient,
+	payload: CreateRoasteryCommand
+): Promise<RoasteryDto> {
+	const { data, error } = await client
+		.from('roasteries')
+		.insert({ name: payload.name, city: payload.city })
+		.select('id,name,city,created_at')
+		.single()
+
+	if (error) {
+		if ((error as { code?: string }).code === '23505') {
+			const dup = new Error('roastery_duplicate')
+			;(dup as { code?: string }).code = 'roastery_duplicate'
+			throw dup
+		}
+		throw error
 	}
 
 	return {

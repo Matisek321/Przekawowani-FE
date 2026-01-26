@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { GET } from '../../src/pages/api/roasteries'
+import { GET, POST } from '../../src/pages/api/roasteries'
 import * as roasteriesService from '../../src/lib/services/roasteries.service'
+import type { RoasteryDto } from '../../src/types'
 
 type TestContext = {
 	request: Request
@@ -78,6 +79,137 @@ describe('GET /api/roasteries', () => {
 			cityNorm: 'kielce',
 			page: 1,
 			pageSize: 20,
+		})
+	})
+})
+
+describe('POST /api/roasteries', () => {
+	beforeEach(() => {
+		vi.restoreAllMocks()
+	})
+
+	it('returns 401 when unauthenticated', async () => {
+		const context: TestContext = {
+			request: new Request('http://localhost/api/roasteries', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name: 'Coffee', city: 'Gdansk' }),
+			}),
+			locals: {
+				supabase: {
+					auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null } }) },
+				},
+			},
+		}
+
+		const res = await POST(context as any)
+		expect(res.status).toBe(401)
+		const body = await res.json()
+		expect(body).toEqual({
+			code: 'unauthorized',
+			message: 'Authentication required',
+		})
+	})
+
+	it('returns 400 for invalid payload', async () => {
+		const context: TestContext = {
+			request: new Request('http://localhost/api/roasteries', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name: '', city: '' }),
+			}),
+			locals: {
+				supabase: {
+					auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'u1' } } }) },
+				},
+			},
+		}
+
+		const res = await POST(context as any)
+		expect(res.status).toBe(400)
+		const body = await res.json()
+		expect(body).toEqual({
+			code: 'validation_failed',
+			message: 'Invalid payload',
+		})
+	})
+
+	it('returns 201 with created roastery and Location header', async () => {
+		const dto: RoasteryDto = {
+			id: '5d2d0d56-7f8d-4d98-b186-10219fd3dfb0',
+			name: 'Coffee Lab',
+			city: 'Poznan',
+			createdAt: '2025-11-11T12:00:00.000000Z',
+		}
+		vi.spyOn(roasteriesService, 'createRoastery').mockResolvedValueOnce(dto)
+
+		const context: TestContext = {
+			request: new Request('http://localhost/api/roasteries', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name: 'Coffee Lab', city: 'Poznan' }),
+			}),
+			locals: {
+				supabase: {
+					auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'u1' } } }) },
+				},
+			},
+		}
+
+		const res = await POST(context as any)
+		expect(res.status).toBe(201)
+		expect(res.headers.get('Location')).toBe(`/api/roasteries/${dto.id}`)
+		const body = await res.json()
+		expect(body).toEqual(dto)
+	})
+
+	it('returns 409 for duplicate roastery', async () => {
+		vi.spyOn(roasteriesService, 'createRoastery').mockRejectedValueOnce({ code: 'roastery_duplicate' })
+
+		const context: TestContext = {
+			request: new Request('http://localhost/api/roasteries', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name: 'Coffee Lab', city: 'Poznan' }),
+			}),
+			locals: {
+				supabase: {
+					auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'u1' } } }) },
+				},
+			},
+		}
+
+		const res = await POST(context as any)
+		expect(res.status).toBe(409)
+		const body = await res.json()
+		expect(body).toEqual({
+			code: 'roastery_duplicate',
+			message: 'Roastery already exists',
+		})
+	})
+
+	it('returns 500 on unexpected error', async () => {
+		vi.spyOn(roasteriesService, 'createRoastery').mockRejectedValueOnce(new Error('boom'))
+
+		const context: TestContext = {
+			request: new Request('http://localhost/api/roasteries', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name: 'Coffee Lab', city: 'Poznan' }),
+			}),
+			locals: {
+				supabase: {
+					auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'u1' } } }) },
+				},
+			},
+		}
+
+		const res = await POST(context as any)
+		expect(res.status).toBe(500)
+		const body = await res.json()
+		expect(body).toEqual({
+			code: 'internal_error',
+			message: 'Unexpected server error',
 		})
 	})
 })

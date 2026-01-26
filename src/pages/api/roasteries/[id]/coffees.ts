@@ -1,23 +1,17 @@
 import type { APIRoute } from 'astro'
-import { z } from 'zod'
 import { jsonBadRequest, jsonConflict, jsonCreated, jsonError, jsonNotFound, jsonOk, jsonUnauthorized } from '../../../../lib/http'
 import { fetchRoasteryCoffees, RoasteryCoffeesServiceError } from '../../../../lib/services/roasteryCoffees.service'
 import { createCoffee, CoffeeServiceError } from '../../../../lib/services/coffee.service'
-import type { CoffeeDto } from '../../../../types'
 import { buildPaginationSchema } from '../../../../lib/validation/pagination'
 import { coffeePathParamsSchema, createCoffeeCommandSchema } from '../../../../lib/validation/coffees'
 
 export const prerender = false
 
-const ParamsSchema = z.object({
-	id: z.string().uuid(),
-})
-
 const QuerySchema = buildPaginationSchema({ defaultPage: 1, defaultPageSize: 30, maxPageSize: 100 })
 
 export const GET: APIRoute = async (context) => {
 	try {
-		const parsedParams = ParamsSchema.safeParse(context.params)
+		const parsedParams = coffeePathParamsSchema.safeParse(context.params)
 		if (!parsedParams.success) {
 			return jsonBadRequest('invalid_request', 'Invalid path params')
 		}
