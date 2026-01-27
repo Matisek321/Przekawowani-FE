@@ -1,0 +1,42 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { RoasteryDetailView } from '@/components/roasteries/RoasteryDetailView'
+
+export const prerender = false
+
+// Get roastery ID from URL params
+const { id } = Astro.params
+
+// Validate UUID format
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const isValidUuid = id && uuidRegex.test(id)
+
+if (!isValidUuid) {
+  return Astro.redirect('/roasteries')
+}
+
+// Parse and validate query params for pagination
+const url = new URL(Astro.request.url)
+const rawPage = url.searchParams.get('page')
+const rawPageSize = url.searchParams.get('pageSize')
+
+// Validate page: must be positive integer, default to 1
+const parsedPage = rawPage ? parseInt(rawPage, 10) : 1
+const page = Number.isInteger(parsedPage) && parsedPage >= 1 ? parsedPage : 1
+
+// Validate pageSize: must be integer in range 1-100, default to 30
+const parsedPageSize = rawPageSize ? parseInt(rawPageSize, 10) : 30
+const pageSize = Number.isInteger(parsedPageSize) && parsedPageSize >= 1 && parsedPageSize <= 100 
+  ? parsedPageSize 
+  : 30
+
+const initialQuery = { page, pageSize }
+---
+
+<Layout title="Szczegóły palarni">
+  <RoasteryDetailView 
+    client:load 
+    roasteryId={id}
+    initialQuery={initialQuery}
+  />
+</Layout>
