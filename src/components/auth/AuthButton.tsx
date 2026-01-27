@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Loader2, LogOut, User, ChevronDown } from 'lucide-react'
+import { Loader2, LogOut, User, ChevronDown, Settings } from 'lucide-react'
 
 type AuthButtonProps = {
   /** User information if logged in, null otherwise */
@@ -88,6 +88,13 @@ export function AuthButton({ user, displayName }: AuthButtonProps) {
           <p className="text-sm font-medium">{displayName || 'Użytkownik'}</p>
           <p className="text-xs text-muted-foreground truncate">{user.email}</p>
         </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <a href="/account" className="cursor-pointer">
+            <Settings className="mr-2 h-4 w-4" />
+            Ustawienia konta
+          </a>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleLogout}
