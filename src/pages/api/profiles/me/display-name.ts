@@ -1,8 +1,7 @@
 import type { APIRoute } from 'astro'
 import { z } from 'zod'
 import { setDisplayNameOnce } from '../../../../lib/services/profile.service'
-import { jsonBadRequest, jsonConflict, jsonCreated, jsonError } from '../../../../lib/http'
-import { DEFAULT_USER_ID } from '../../../../db/constants'
+import { jsonBadRequest, jsonConflict, jsonCreated, jsonError, jsonUnauthorized } from '../../../../lib/http'
 
 export const prerender = false
 
@@ -18,7 +17,13 @@ export const POST: APIRoute = async (context) => {
   try {
     const requestId = crypto.randomUUID()
     const supabase = context.locals.supabase
-    const userId = DEFAULT_USER_ID
+    const user = context.locals.user
+
+    if (!user) {
+      return jsonUnauthorized('unauthorized', 'Authentication required')
+    }
+
+    const userId = user.id
 
     const json = await context.request.json().catch(() => null)
     const parsed = bodySchema.safeParse(json)

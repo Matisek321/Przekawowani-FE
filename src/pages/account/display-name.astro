@@ -1,0 +1,14 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import { SetDisplayNamePage } from '@/components/account/SetDisplayNamePage'
+
+export const prerender = false
+
+// Get returnTo from query params
+const url = new URL(Astro.request.url)
+const returnTo = url.searchParams.get('returnTo') ?? undefined
+---
+
+<Layout title="Ustaw nazwę wyświetlaną">
+  <SetDisplayNamePage client:load returnTo={returnTo} />
+</Layout>
