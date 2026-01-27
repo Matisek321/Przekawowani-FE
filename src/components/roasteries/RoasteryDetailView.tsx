@@ -1,9 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuthSession } from '@/components/auth/useAuthSession'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, Plus, AlertCircle, Coffee, Info } from 'lucide-react'
+import { Loader2, Plus, AlertCircle, Coffee } from 'lucide-react'
+import {
+  CoffeeCard,
+  PaginationControls,
+  type CoffeeListItemVM,
+  type PaginationState,
+} from '@/components/coffees/shared'
 import type { RoasteryDto, RoasteryCoffeeDto, RoasteryCoffeeListResponse } from '@/types'
 
 // ============================================================================
@@ -21,24 +26,8 @@ export type RoasteryDetailVM = {
   city: string
 }
 
-export type CoffeeListItemVM = {
-  id: string
-  name: string
-  avgMain: number | null
-  ratingsCount: number
-  smallSample: boolean
-  href: string
-}
-
 export type CoffeesListVM = {
   items: CoffeeListItemVM[]
-  page: number
-  pageSize: number
-  total: number
-  totalPages: number
-}
-
-export type PaginationState = {
   page: number
   pageSize: number
   total: number
@@ -62,10 +51,11 @@ function mapRoasteryDtoToVM(dto: RoasteryDto): RoasteryDetailVM {
   }
 }
 
-function mapCoffeeDtoToVM(dto: RoasteryCoffeeDto): CoffeeListItemVM {
+function mapCoffeeDtoToVM(dto: RoasteryCoffeeDto, roasteryId: string): CoffeeListItemVM {
   return {
     id: dto.id,
     name: dto.name,
+    roasteryId,
     avgMain: dto.avgMain,
     ratingsCount: dto.ratingsCount,
     smallSample: dto.smallSample,
@@ -73,10 +63,10 @@ function mapCoffeeDtoToVM(dto: RoasteryCoffeeDto): CoffeeListItemVM {
   }
 }
 
-function mapCoffeeListResponseToVM(response: RoasteryCoffeeListResponse): CoffeesListVM {
+function mapCoffeeListResponseToVM(response: RoasteryCoffeeListResponse, roasteryId: string): CoffeesListVM {
   const totalPages = Math.ceil(response.total / response.pageSize)
   return {
-    items: response.items.map(mapCoffeeDtoToVM),
+    items: response.items.map((dto) => mapCoffeeDtoToVM(dto, roasteryId)),
     page: response.page,
     pageSize: response.pageSize,
     total: response.total,
@@ -213,7 +203,7 @@ function useRoasteryCoffees(
       }
 
       const json: RoasteryCoffeeListResponse = await response.json()
-      setData(mapCoffeeListResponseToVM(json))
+      setData(mapCoffeeListResponseToVM(json, roasteryId))
     } catch (err) {
       console.error('[useRoasteryCoffees] fetch error:', err)
       setError({
@@ -242,48 +232,6 @@ function useRoasteryCoffees(
 // Sub-components
 // ============================================================================
 
-type RatingBadgeProps = {
-  value: number | null
-}
-
-function RatingBadge({ value }: RatingBadgeProps) {
-  if (value === null) {
-    return (
-      <span className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
-        Brak ocen
-      </span>
-    )
-  }
-
-  // Color based on rating value
-  let colorClasses = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-  if (value >= 4.5) {
-    colorClasses = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-  } else if (value >= 3.5) {
-    colorClasses = 'bg-lime-100 text-lime-800 dark:bg-lime-900 dark:text-lime-200'
-  } else if (value < 2.5) {
-    colorClasses = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-  }
-
-  return (
-    <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${colorClasses}`}>
-      {value.toFixed(1)}
-    </span>
-  )
-}
-
-function SmallSampleBadge() {
-  return (
-    <span 
-      className="inline-flex items-center gap-1 rounded-md bg-orange-100 px-2 py-1 text-xs font-medium text-orange-800 dark:bg-orange-900 dark:text-orange-200"
-      title="Ocena oparta na mniej niż 3 opiniach"
-    >
-      <Info className="h-3 w-3" />
-      Mała próba
-    </span>
-  )
-}
-
 type RoasteryHeaderProps = {
   roastery: RoasteryDetailVM
   showAddCoffeeButton: boolean
@@ -303,168 +251,6 @@ function RoasteryHeader({ roastery, showAddCoffeeButton }: RoasteryHeaderProps) 
             Dodaj kawę
           </a>
         </Button>
-      )}
-    </div>
-  )
-}
-
-type CoffeeCardProps = {
-  item: CoffeeListItemVM
-}
-
-function CoffeeCard({ item }: CoffeeCardProps) {
-  return (
-    <a href={item.href} className="block transition-transform hover:scale-[1.02]">
-      <Card className="h-full cursor-pointer hover:border-primary/50 hover:shadow-md transition-all">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">{item.name}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap items-center gap-2">
-            <RatingBadge value={item.avgMain} />
-            {item.smallSample && <SmallSampleBadge />}
-          </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {item.ratingsCount} {item.ratingsCount === 1 ? 'ocena' : item.ratingsCount >= 2 && item.ratingsCount <= 4 ? 'oceny' : 'ocen'}
-          </p>
-        </CardContent>
-      </Card>
-    </a>
-  )
-}
-
-type CoffeeListProps = {
-  items: CoffeeListItemVM[]
-}
-
-function CoffeeList({ items }: CoffeeListProps) {
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {items.map((item) => (
-        <CoffeeCard key={item.id} item={item} />
-      ))}
-    </div>
-  )
-}
-
-type PaginationControlsProps = {
-  pagination: PaginationState
-  onPageChange: (page: number) => void
-  onPageSizeChange: (pageSize: number) => void
-}
-
-function PaginationControls({ pagination, onPageChange, onPageSizeChange }: PaginationControlsProps) {
-  const { page, pageSize, totalPages } = pagination
-
-  const pageSizeOptions = [10, 30, 50, 100]
-
-  // Calculate visible page numbers
-  const getVisiblePages = () => {
-    const pages: number[] = []
-    const maxVisible = 5
-
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i)
-      }
-    } else {
-      // Always show first page
-      pages.push(1)
-
-      // Calculate range around current page
-      const start = Math.max(2, page - 1)
-      const end = Math.min(totalPages - 1, page + 1)
-
-      if (start > 2) {
-        pages.push(-1) // Ellipsis
-      }
-
-      for (let i = start; i <= end; i++) {
-        pages.push(i)
-      }
-
-      if (end < totalPages - 1) {
-        pages.push(-2) // Ellipsis
-      }
-
-      // Always show last page
-      if (totalPages > 1) {
-        pages.push(totalPages)
-      }
-    }
-
-    return pages
-  }
-
-  const visiblePages = getVisiblePages()
-
-  if (totalPages <= 1 && pageSize === 30) {
-    return null
-  }
-
-  return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">Na stronie:</span>
-        <select
-          value={pageSize}
-          onChange={(e) => onPageSizeChange(Number(e.target.value))}
-          className="h-9 rounded-md border bg-background px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          aria-label="Liczba elementów na stronie"
-        >
-          {pageSizeOptions.map((size) => (
-            <option key={size} value={size}>
-              {size}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {totalPages > 1 && (
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange(page - 1)}
-            disabled={page <= 1}
-            aria-label="Poprzednia strona"
-          >
-            ←
-          </Button>
-
-          {visiblePages.map((pageNum, index) => {
-            if (pageNum < 0) {
-              return (
-                <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground">
-                  ...
-                </span>
-              )
-            }
-
-            return (
-              <Button
-                key={pageNum}
-                variant={pageNum === page ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => onPageChange(pageNum)}
-                aria-label={`Strona ${pageNum}`}
-                aria-current={pageNum === page ? 'page' : undefined}
-              >
-                {pageNum}
-              </Button>
-            )
-          })}
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange(page + 1)}
-            disabled={page >= totalPages}
-            aria-label="Następna strona"
-          >
-            →
-          </Button>
-        </div>
       )}
     </div>
   )
@@ -666,7 +452,11 @@ export function RoasteryDetailView({ roasteryId, initialQuery }: RoasteryDetailV
       {/* Coffee list with pagination */}
       {roasteryDetail.data && !coffeesList.isLoading && !coffeesList.error && coffeesList.data && coffeesList.data.items.length > 0 && (
         <>
-          <CoffeeList items={coffeesList.data.items} />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {coffeesList.data.items.map((item) => (
+              <CoffeeCard key={item.id} item={item} />
+            ))}
+          </div>
           {pagination && (
             <PaginationControls
               pagination={pagination}

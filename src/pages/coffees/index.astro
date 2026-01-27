@@ -1,0 +1,24 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { CoffeesListView } from "@/components/coffees/CoffeesListView";
+
+// Parse initial query params from URL (server-side)
+const url = new URL(Astro.request.url);
+const rawPage = url.searchParams.get("page");
+const rawPageSize = url.searchParams.get("pageSize");
+
+const parsedPage = rawPage ? parseInt(rawPage, 10) : 1;
+const page = Number.isInteger(parsedPage) && parsedPage >= 1 ? parsedPage : 1;
+
+const parsedPageSize = rawPageSize ? parseInt(rawPageSize, 10) : 100;
+const pageSize =
+  Number.isInteger(parsedPageSize) && parsedPageSize >= 1 && parsedPageSize <= 100
+    ? parsedPageSize
+    : 100;
+
+const initialQuery = { page, pageSize };
+---
+
+<Layout title="Ranking kaw | Przekawowani">
+  <CoffeesListView client:load initialQuery={initialQuery} />
+</Layout>

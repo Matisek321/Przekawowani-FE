@@ -28,7 +28,17 @@ const authUser = user
   <body class="min-h-screen bg-background text-foreground">
     <header class="border-b">
       <div class="container mx-auto flex items-center justify-between px-4 py-3">
-        <a href="/" class="text-lg font-semibold">Przekawowani</a>
+        <div class="flex items-center gap-6">
+          <a href="/" class="text-lg font-semibold">Przekawowani</a>
+          <nav class="hidden sm:flex items-center gap-4">
+            <a href="/coffees" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Ranking kaw
+            </a>
+            <a href="/roasteries" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Palarnie
+            </a>
+          </nav>
+        </div>
         <AuthButton client:load user={authUser} />
       </div>
     </header>
