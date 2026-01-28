@@ -61,15 +61,13 @@ export type CreateRoasteryCommand = {
 }
 
 /**
- * Coffee summary used for roastery-scoped listings. `smallSample` is derived
- * from the base table (`ratings_count < 3`) and therefore expressed explicitly.
+ * Coffee summary used for roastery-scoped listings.
  */
 export type RoasteryCoffeeDto = {
   id: CoffeeRow['id']
   name: CoffeeRow['name']
   avgMain: CoffeeRow['avg_main']
   ratingsCount: CoffeeRow['ratings_count']
-  smallSample: boolean
   createdAt: CoffeeRow['created_at']
 }
 
@@ -84,7 +82,6 @@ export type CoffeeDto = {
   name: CoffeeRow['name']
   avgMain: CoffeeRow['avg_main']
   ratingsCount: CoffeeRow['ratings_count']
-  smallSample: boolean
   createdAt: CoffeeRow['created_at']
 }
 

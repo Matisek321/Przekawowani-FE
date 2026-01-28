@@ -14,7 +14,6 @@ export type CoffeeDetailVM = {
   roasteryHref: string
   avgMain: number | null
   ratingsCount: number
-  smallSample: boolean
 }
 
 export type ApiErrorState = {
@@ -46,7 +45,6 @@ function mapCoffeeDetailToVM(
     roasteryHref: `/roasteries/${coffee.roasteryId}`,
     avgMain: coffee.avgMain,
     ratingsCount: coffee.ratingsCount,
-    smallSample: coffee.smallSample,
   }
 }
 

@@ -27,7 +27,7 @@ export async function getCoffeeById(
 ): Promise<CoffeeDetailDto | null> {
 	const { data, error } = await supabase
 		.from('coffee_aggregates')
-		.select('coffee_id, roastery_id, name, avg_main, ratings_count, small_sample, created_at')
+		.select('coffee_id, roastery_id, name, avg_main, ratings_count, created_at')
 		.eq('coffee_id', id)
 		.maybeSingle()
 
@@ -56,7 +56,6 @@ export async function getCoffeeById(
 		name: data.name,
 		avgMain: data.avg_main,
 		ratingsCount: data.ratings_count,
-		smallSample: data.small_sample ?? data.ratings_count < 3,
 		createdAt: data.created_at,
 	}
 
@@ -123,7 +122,6 @@ export async function createCoffee(
 		name: coffee.name,
 		avgMain: coffee.avg_main,
 		ratingsCount: coffee.ratings_count,
-		smallSample: coffee.ratings_count < 3,
 		createdAt: coffee.created_at,
 	}
 

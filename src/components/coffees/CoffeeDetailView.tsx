@@ -4,7 +4,7 @@ import { useCoffeeDetail, type CoffeeDetailVM, type ApiErrorState } from './hook
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { RatingBadge, SmallSampleBadge } from './shared'
+import { RatingBadge } from './shared'
 import { Loader2, AlertCircle, ArrowLeft, ExternalLink, Star } from 'lucide-react'
 
 // ============================================================================
@@ -73,7 +73,6 @@ function CoffeeHeader({ coffee }: CoffeeHeaderProps) {
       <h1 className="text-2xl font-bold sm:text-3xl">{coffee.name}</h1>
       <div className="flex flex-wrap items-center gap-3">
         <RatingBadge value={coffee.avgMain} size="lg" />
-        {coffee.smallSample && <SmallSampleBadge />}
         <span className="text-sm text-muted-foreground">
           {formatRatingsCount(coffee.ratingsCount)}
         </span>

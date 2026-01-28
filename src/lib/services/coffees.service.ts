@@ -66,7 +66,6 @@ export async function listCoffees(
 		name: row.name,
 		avgMain: row.avg_main,
 		ratingsCount: row.ratings_count,
-		smallSample: row.ratings_count < 3,
 		createdAt: row.created_at,
 	}))
 

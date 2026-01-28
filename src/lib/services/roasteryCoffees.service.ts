@@ -36,7 +36,7 @@ export async function fetchRoasteryCoffees(
 
 	const { data, count, error } = await client
 		.from('coffee_aggregates')
-		.select('coffee_id,name,avg_main,ratings_count,small_sample,created_at', {
+		.select('coffee_id,name,avg_main,ratings_count,created_at', {
 			count: 'exact',
 		})
 		.eq('roastery_id', roasteryId)
@@ -57,7 +57,6 @@ export async function fetchRoasteryCoffees(
 			name: row.name ?? '',
 			avgMain: row.avg_main,
 			ratingsCount: row.ratings_count ?? 0,
-			smallSample: Boolean(row.small_sample),
 			createdAt: row.created_at ?? new Date(0).toISOString(),
 		}))
 

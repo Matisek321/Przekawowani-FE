@@ -58,7 +58,6 @@ function mapCoffeeDtoToVM(dto: RoasteryCoffeeDto, roasteryId: string): CoffeeLis
     roasteryId,
     avgMain: dto.avgMain,
     ratingsCount: dto.ratingsCount,
-    smallSample: dto.smallSample,
     href: `/coffees/${dto.id}`,
   }
 }

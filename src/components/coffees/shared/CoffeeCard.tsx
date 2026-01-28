@@ -1,7 +1,6 @@
 import { memo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { RatingBadge } from './RatingBadge'
-import { SmallSampleBadge } from './SmallSampleBadge'
 
 export type CoffeeListItemVM = {
   id: string
@@ -9,7 +8,6 @@ export type CoffeeListItemVM = {
   roasteryId: string
   avgMain: number | null
   ratingsCount: number
-  smallSample: boolean
   href: string
 }
 
@@ -18,6 +16,9 @@ type CoffeeCardProps = {
 }
 
 function formatRatingsCount(count: number): string {
+  if (count === 0) {
+    return 'Brak ocen'
+  }
   if (count === 1) {
     return '1 ocena'
   }
@@ -40,7 +41,6 @@ function CoffeeCardComponent({ item }: CoffeeCardProps) {
         <CardContent>
           <div className="flex flex-wrap items-center gap-2">
             <RatingBadge value={item.avgMain} />
-            {item.smallSample && <SmallSampleBadge />}
           </div>
           <p className="mt-2 text-sm text-muted-foreground">
             {formatRatingsCount(item.ratingsCount)}
