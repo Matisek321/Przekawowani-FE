@@ -24,6 +24,10 @@ For full product requirements, see `.ai/prd.md`.
   - Shadcn/ui (accessible React UI components)
 - Backend:
   - Supabase (PostgreSQL, Auth, open source; can be self-hosted)
+- Testing:
+  - Vitest (unit and integration tests)
+  - React Testing Library (component testing)
+  - Playwright (E2E tests)
 - CI/CD and Hosting:
   - GitHub Actions (CI/CD pipelines)
   - DigitalOcean (hosting via Docker image)
@@ -73,6 +77,8 @@ Notes:
 - `npm run lint`: Run ESLint
 - `npm run lint:fix`: Auto-fix lint issues when possible
 - `npm run format`: Format the repository with Prettier
+- `npm run test`: Run unit and integration tests
+- `npm run test:watch`: Run tests in watch mode
 
 ## 6. Project scope
 
