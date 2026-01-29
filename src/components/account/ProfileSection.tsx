@@ -11,7 +11,7 @@ type ProfileSectionProps = {
  */
 export function ProfileSection({ email, displayName }: ProfileSectionProps) {
   return (
-    <Card>
+    <Card data-test-id="profile-section">
       <CardHeader>
         <CardTitle className="text-lg">Profil</CardTitle>
       </CardHeader>
@@ -21,7 +21,7 @@ export function ProfileSection({ email, displayName }: ProfileSectionProps) {
           <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">Email</p>
-            <p className="text-sm">{email}</p>
+            <p className="text-sm" data-test-id="profile-section-email">{email}</p>
           </div>
         </div>
 
@@ -33,15 +33,16 @@ export function ProfileSection({ email, displayName }: ProfileSectionProps) {
               Nazwa wyświetlana
             </p>
             {displayName ? (
-              <p className="text-sm">{displayName}</p>
+              <p className="text-sm" data-test-id="profile-section-display-name">{displayName}</p>
             ) : (
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground italic">
+                <p className="text-sm text-muted-foreground italic" data-test-id="profile-section-display-name-not-set">
                   Nie ustawiono
                 </p>
                 <a
                   href="/account/display-name?returnTo=/account"
                   className="text-sm text-primary hover:underline"
+                  data-test-id="profile-section-set-display-name-link"
                 >
                   Ustaw nazwę
                 </a>

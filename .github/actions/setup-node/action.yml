@@ -1,0 +1,16 @@
+# Composite action for Node.js setup with caching
+name: "Setup Node.js"
+description: "Setup Node.js with npm cache"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: ".nvmrc"
+        cache: "npm"
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci

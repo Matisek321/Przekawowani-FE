@@ -80,7 +80,7 @@ export function SetDisplayNamePage({ returnTo }: SetDisplayNamePageProps) {
   // Show loading while checking auth session
   if (isLoading) {
     return (
-      <div className="container mx-auto max-w-md px-4 py-8">
+      <div className="container mx-auto max-w-md px-4 py-8" data-test-id="set-display-name-page-loading-session">
         <div className="flex flex-col items-center justify-center gap-4 py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           <p className="text-muted-foreground">Sprawdzanie sesji...</p>
@@ -92,7 +92,7 @@ export function SetDisplayNamePage({ returnTo }: SetDisplayNamePageProps) {
   // Show loading while checking profile
   if (isCheckingProfile && isAuthenticated) {
     return (
-      <div className="container mx-auto max-w-md px-4 py-8">
+      <div className="container mx-auto max-w-md px-4 py-8" data-test-id="set-display-name-page-loading-profile">
         <div className="flex flex-col items-center justify-center gap-4 py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           <p className="text-muted-foreground">Sprawdzanie profilu...</p>
@@ -104,7 +104,7 @@ export function SetDisplayNamePage({ returnTo }: SetDisplayNamePageProps) {
   // Show redirecting state
   if (isRedirecting) {
     return (
-      <div className="container mx-auto max-w-md px-4 py-8">
+      <div className="container mx-auto max-w-md px-4 py-8" data-test-id="set-display-name-page-redirecting">
         <div className="flex flex-col items-center justify-center gap-4 py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           <p className="text-muted-foreground">Przekierowuję...</p>
@@ -116,8 +116,8 @@ export function SetDisplayNamePage({ returnTo }: SetDisplayNamePageProps) {
   // Show error if profile check failed
   if (profileError) {
     return (
-      <div className="container mx-auto max-w-md px-4 py-8">
-        <Alert variant="destructive">
+      <div className="container mx-auto max-w-md px-4 py-8" data-test-id="set-display-name-page-error">
+        <Alert variant="destructive" data-test-id="set-display-name-page-error-alert">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{profileError}</AlertDescription>
         </Alert>
@@ -131,17 +131,17 @@ export function SetDisplayNamePage({ returnTo }: SetDisplayNamePageProps) {
   }
 
   return (
-    <div className="container mx-auto max-w-md px-4 py-8">
-      <Card>
+    <div className="container mx-auto max-w-md px-4 py-8" data-test-id="set-display-name-page">
+      <Card data-test-id="set-display-name-card">
         <CardHeader>
-          <CardTitle className="text-2xl">Ustaw nazwę wyświetlaną</CardTitle>
+          <CardTitle className="text-2xl" data-test-id="set-display-name-page-title">Ustaw nazwę wyświetlaną</CardTitle>
           <CardDescription>
             Wybierz swoją publiczną nazwę, która będzie widoczna dla innych użytkowników.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* One-time setting info banner */}
-          <Alert>
+          <Alert data-test-id="set-display-name-info-banner">
             <Info className="h-4 w-4" />
             <AlertDescription>
               <strong>Uwaga:</strong> Nazwa wyświetlana może być ustawiona tylko raz i nie można jej później zmienić.

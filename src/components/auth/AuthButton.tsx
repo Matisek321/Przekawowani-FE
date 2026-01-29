@@ -56,7 +56,7 @@ export function AuthButton({ user, displayName }: AuthButtonProps) {
   // Unauthenticated - show login button
   if (!user) {
     return (
-      <Button asChild variant="default" size="sm">
+      <Button asChild variant="default" size="sm" data-test-id="auth-login-button">
         <a href="/login">Zaloguj się</a>
       </Button>
     )
@@ -73,23 +73,24 @@ export function AuthButton({ user, displayName }: AuthButtonProps) {
           size="sm" 
           className="gap-2"
           disabled={isLoggingOut}
+          data-test-id="auth-user-menu-trigger"
         >
           {isLoggingOut ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <User className="h-4 w-4" />
           )}
-          <span className="max-w-32 truncate">{displayText}</span>
+          <span className="max-w-32 truncate" data-test-id="auth-user-display-name">{displayText}</span>
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-56" data-test-id="auth-user-menu">
         <div className="px-2 py-1.5">
-          <p className="text-sm font-medium">{displayName || 'Użytkownik'}</p>
-          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+          <p className="text-sm font-medium" data-test-id="auth-menu-display-name">{displayName || 'Użytkownik'}</p>
+          <p className="text-xs text-muted-foreground truncate" data-test-id="auth-menu-email">{user.email}</p>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
+        <DropdownMenuItem asChild data-test-id="auth-account-settings-link">
           <a href="/account" className="cursor-pointer">
             <Settings className="mr-2 h-4 w-4" />
             Ustawienia konta
@@ -100,6 +101,7 @@ export function AuthButton({ user, displayName }: AuthButtonProps) {
           onClick={handleLogout}
           disabled={isLoggingOut}
           className="text-destructive focus:text-destructive cursor-pointer"
+          data-test-id="auth-logout-button"
         >
           {isLoggingOut ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -31,6 +31,9 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('/')` */
     baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000",
 
+    /* Use data-test-id attribute for getByTestId() */
+    testIdAttribute: "data-test-id",
+
     /* Collect trace when retrying the failed test */
     trace: "on-first-retry",
 

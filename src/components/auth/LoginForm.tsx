@@ -207,7 +207,7 @@ export function LoginForm() {
   const passwordErrorId = `${formId}-password-error`
 
   return (
-    <Card>
+    <Card data-test-id="login-form">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Zaloguj się</CardTitle>
         <CardDescription>
@@ -215,11 +215,11 @@ export function LoginForm() {
         </CardDescription>
       </CardHeader>
       
-      <form onSubmit={handleSubmit} noValidate>
+      <form onSubmit={handleSubmit} noValidate data-test-id="login-form-element">
         <CardContent className="space-y-4">
           {/* Form error banner */}
           {errors.form && (
-            <Alert variant="destructive" role="alert">
+            <Alert variant="destructive" role="alert" data-test-id="login-form-error">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{errors.form}</AlertDescription>
             </Alert>
@@ -241,9 +241,10 @@ export function LoginForm() {
               aria-describedby={errors.email ? emailErrorId : undefined}
               autoComplete="email"
               autoFocus
+              data-test-id="login-email-input"
             />
             {touched.email && errors.email && (
-              <p id={emailErrorId} className="text-sm text-destructive">
+              <p id={emailErrorId} className="text-sm text-destructive" data-test-id="login-email-error">
                 {errors.email}
               </p>
             )}
@@ -256,6 +257,7 @@ export function LoginForm() {
               <a 
                 href="/auth/forgot-password" 
                 className="text-sm text-primary hover:underline"
+                data-test-id="login-forgot-password-link"
               >
                 Zapomniałeś hasła?
               </a>
@@ -271,9 +273,10 @@ export function LoginForm() {
               aria-invalid={touched.password && !!errors.password}
               aria-describedby={errors.password ? passwordErrorId : undefined}
               autoComplete="current-password"
+              data-test-id="login-password-input"
             />
             {touched.password && errors.password && (
-              <p id={passwordErrorId} className="text-sm text-destructive">
+              <p id={passwordErrorId} className="text-sm text-destructive" data-test-id="login-password-error">
                 {errors.password}
               </p>
             )}
@@ -286,6 +289,7 @@ export function LoginForm() {
             type="submit"
             disabled={isSubmitting}
             className="w-full"
+            data-test-id="login-submit-button"
           >
             {isSubmitting ? (
               <>
@@ -300,7 +304,7 @@ export function LoginForm() {
           {/* Register link */}
           <p className="text-center text-sm text-muted-foreground">
             Nie masz konta?{' '}
-            <a href="/auth/register" className="text-primary hover:underline">
+            <a href="/auth/register" className="text-primary hover:underline" data-test-id="login-register-link">
               Zarejestruj się
             </a>
           </p>

@@ -158,10 +158,10 @@ export function SetDisplayNameForm({ accessToken, onSuccess }: SetDisplayNameFor
   const trimmedLength = value.trim().length
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate data-test-id="set-display-name-form">
       {/* Form error banner */}
       {errors.form && (
-        <Alert variant="destructive" role="alert">
+        <Alert variant="destructive" role="alert" data-test-id="set-display-name-form-error">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{errors.form}</AlertDescription>
         </Alert>
@@ -186,16 +186,17 @@ export function SetDisplayNameForm({ accessToken, onSuccess }: SetDisplayNameFor
           aria-describedby={`${errors.displayName ? errorId : ''} ${counterId}`.trim()}
           autoComplete="nickname"
           autoFocus
+          data-test-id="set-display-name-input"
         />
         <div className="flex items-center justify-between text-sm">
           {touched && errors.displayName ? (
-            <p id={errorId} className="text-destructive">
+            <p id={errorId} className="text-destructive" data-test-id="set-display-name-field-error">
               {errors.displayName}
             </p>
           ) : (
             <span />
           )}
-          <p id={counterId} className="text-muted-foreground">
+          <p id={counterId} className="text-muted-foreground" data-test-id="set-display-name-counter">
             {trimmedLength}/{MAX_LENGTH}
           </p>
         </div>
@@ -206,6 +207,7 @@ export function SetDisplayNameForm({ accessToken, onSuccess }: SetDisplayNameFor
         type="submit"
         disabled={isSubmitting}
         className="w-full"
+        data-test-id="set-display-name-submit-button"
       >
         {isSubmitting ? (
           <>

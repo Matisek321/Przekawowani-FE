@@ -264,18 +264,18 @@ export function RegisterForm() {
   // Show success state
   if (successMessage) {
     return (
-      <Card>
+      <Card data-test-id="register-success">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
             <CheckCircle2 className="h-6 w-6 text-green-600" />
           </div>
           <CardTitle className="text-2xl">Sprawdź swoją skrzynkę</CardTitle>
-          <CardDescription className="text-base">
+          <CardDescription className="text-base" data-test-id="register-success-message">
             {successMessage}
           </CardDescription>
         </CardHeader>
         <CardFooter className="flex flex-col gap-4">
-          <a href="/login" className="w-full">
+          <a href="/login" className="w-full" data-test-id="register-success-login-link">
             <Button variant="outline" className="w-full">
               Przejdź do logowania
             </Button>
@@ -286,7 +286,7 @@ export function RegisterForm() {
   }
 
   return (
-    <Card>
+    <Card data-test-id="register-form">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Utwórz konto</CardTitle>
         <CardDescription>
@@ -294,11 +294,11 @@ export function RegisterForm() {
         </CardDescription>
       </CardHeader>
       
-      <form onSubmit={handleSubmit} noValidate>
+      <form onSubmit={handleSubmit} noValidate data-test-id="register-form-element">
         <CardContent className="space-y-4">
           {/* Form error banner */}
           {errors.form && (
-            <Alert variant="destructive" role="alert">
+            <Alert variant="destructive" role="alert" data-test-id="register-form-error">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{errors.form}</AlertDescription>
             </Alert>
@@ -322,9 +322,10 @@ export function RegisterForm() {
               aria-describedby={errors.email ? emailErrorId : undefined}
               autoComplete="email"
               autoFocus
+              data-test-id="register-email-input"
             />
             {touched.email && errors.email && (
-              <p id={emailErrorId} className="text-sm text-destructive">
+              <p id={emailErrorId} className="text-sm text-destructive" data-test-id="register-email-error">
                 {errors.email}
               </p>
             )}
@@ -346,9 +347,10 @@ export function RegisterForm() {
               aria-invalid={touched.password && !!errors.password}
               aria-describedby={errors.password ? passwordErrorId : undefined}
               autoComplete="new-password"
+              data-test-id="register-password-input"
             />
             {touched.password && errors.password && (
-              <p id={passwordErrorId} className="text-sm text-destructive">
+              <p id={passwordErrorId} className="text-sm text-destructive" data-test-id="register-password-error">
                 {errors.password}
               </p>
             )}
@@ -373,9 +375,10 @@ export function RegisterForm() {
               aria-invalid={touched.confirmPassword && !!errors.confirmPassword}
               aria-describedby={errors.confirmPassword ? confirmPasswordErrorId : undefined}
               autoComplete="new-password"
+              data-test-id="register-confirm-password-input"
             />
             {touched.confirmPassword && errors.confirmPassword && (
-              <p id={confirmPasswordErrorId} className="text-sm text-destructive">
+              <p id={confirmPasswordErrorId} className="text-sm text-destructive" data-test-id="register-confirm-password-error">
                 {errors.confirmPassword}
               </p>
             )}
@@ -388,6 +391,7 @@ export function RegisterForm() {
             type="submit"
             disabled={isSubmitting}
             className="w-full"
+            data-test-id="register-submit-button"
           >
             {isSubmitting ? (
               <>
@@ -402,7 +406,7 @@ export function RegisterForm() {
           {/* Login link */}
           <p className="text-center text-sm text-muted-foreground">
             Masz już konto?{' '}
-            <a href="/login" className="text-primary hover:underline">
+            <a href="/login" className="text-primary hover:underline" data-test-id="register-login-link">
               Zaloguj się
             </a>
           </p>
