@@ -41,12 +41,8 @@ export class AccountPage extends BasePage {
     this.profileSection = this.getByTestId("profile-section");
     this.profileEmail = this.getByTestId("profile-section-email");
     this.profileDisplayName = this.getByTestId("profile-section-display-name");
-    this.profileDisplayNameNotSet = this.getByTestId(
-      "profile-section-display-name-not-set"
-    );
-    this.setDisplayNameLink = this.getByTestId(
-      "profile-section-set-display-name-link"
-    );
+    this.profileDisplayNameNotSet = this.getByTestId("profile-section-display-name-not-set");
+    this.setDisplayNameLink = this.getByTestId("profile-section-set-display-name-link");
   }
 
   /**

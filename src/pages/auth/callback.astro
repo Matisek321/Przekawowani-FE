@@ -1,15 +1,15 @@
 ---
 /**
  * Auth callback page for handling Supabase Auth redirects.
- * 
+ *
  * This page handles:
  * - Email verification after registration
  * - Password reset token exchange
  * - Magic link authentication (if enabled)
- * 
+ *
  * The page processes tokens from the URL hash/query params
  * and exchanges them for a session via Supabase Auth.
- * 
+ *
  * Note: Full implementation will be added when backend auth is ready.
  * For now, this serves as a placeholder that shows a loading state
  * and handles client-side token processing.
@@ -27,35 +27,33 @@ import AuthLayout from "@/layouts/AuthLayout.astro";
 </AuthLayout>
 
 <script type="module">
-  /**
-   * Client-side script to handle auth callback.
-   * Processes tokens from URL and redirects appropriately.
-   */
+  // Client-side script to handle auth callback.
+  // Processes tokens from URL and redirects appropriately.
   import { createSupabaseBrowserClient } from "@/db/supabase.client";
 
   async function handleCallback() {
     const hash = window.location.hash;
     const params = new URLSearchParams(window.location.search);
     const supabase = createSupabaseBrowserClient();
-    
+
     // Check for error in URL
-    const error = params.get('error');
-    const errorDescription = params.get('error_description');
-    
+    const error = params.get("error");
+    const errorDescription = params.get("error_description");
+
     if (error) {
-      console.error('Auth callback error:', error, errorDescription);
+      console.error("Auth callback error:", error, errorDescription);
       // Redirect to login with error
       window.location.assign(`/login?error=${encodeURIComponent(error)}`);
       return;
     }
-    
+
     // Check for access_token in hash (email verification, magic link)
-    if (hash && hash.includes('access_token')) {
+    if (hash && hash.includes("access_token")) {
       // Parse hash params
       const hashParams = new URLSearchParams(hash.substring(1));
-      const accessToken = hashParams.get('access_token');
-      const refreshToken = hashParams.get('refresh_token');
-      const type = hashParams.get('type');
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      const type = hashParams.get("type");
 
       if (accessToken && refreshToken) {
         await supabase.auth.setSession({
@@ -63,38 +61,38 @@ import AuthLayout from "@/layouts/AuthLayout.astro";
           refresh_token: refreshToken,
         });
       }
-      
-      if (type === 'recovery') {
+
+      if (type === "recovery") {
         // Password recovery - redirect to reset password page
         // The session should already be set by Supabase
-        window.location.assign('/auth/reset-password');
+        window.location.assign("/auth/reset-password");
         return;
       }
-      
-      if (type === 'signup' || type === 'magiclink') {
+
+      if (type === "signup" || type === "magiclink") {
         // Email verified or magic link - redirect to home
-        window.location.assign('/');
+        window.location.assign("/");
         return;
       }
-      
+
       // Default - redirect to home
-      window.location.assign('/');
+      window.location.assign("/");
       return;
     }
-    
+
     // Check for code in query params (PKCE flow)
-    const code = params.get('code');
+    const code = params.get("code");
     if (code) {
       // Exchange code for session via API
       // Note: PKCE flow not yet implemented. Redirect to home for now.
-      window.location.assign('/');
+      window.location.assign("/");
       return;
     }
-    
+
     // No tokens found - redirect to login
-    window.location.assign('/login');
+    window.location.assign("/login");
   }
-  
+
   // Run on page load
   handleCallback();
 </script>

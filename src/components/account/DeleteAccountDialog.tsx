@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,56 +8,50 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, AlertTriangle } from 'lucide-react'
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, AlertTriangle } from "lucide-react";
 
-const CONFIRMATION_WORD = 'USUŃ'
+const CONFIRMATION_WORD = "USUŃ";
 
-type DeleteAccountDialogProps = {
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
-  onConfirm: () => Promise<void>
-  isDeleting: boolean
-  error: string | null
+interface DeleteAccountDialogProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => Promise<void>;
+  isDeleting: boolean;
+  error: string | null;
 }
 
 /**
  * Dialog for confirming account deletion.
  * Requires typing "USUŃ" to enable the delete button.
  */
-export function DeleteAccountDialog({
-  isOpen,
-  onOpenChange,
-  onConfirm,
-  isDeleting,
-  error,
-}: DeleteAccountDialogProps) {
-  const [confirmationText, setConfirmationText] = useState('')
+export function DeleteAccountDialog({ isOpen, onOpenChange, onConfirm, isDeleting, error }: DeleteAccountDialogProps) {
+  const [confirmationText, setConfirmationText] = useState("");
 
-  const isValid = confirmationText === CONFIRMATION_WORD
+  const isValid = confirmationText === CONFIRMATION_WORD;
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
       if (!open) {
         // Reset confirmation text when closing
-        setConfirmationText('')
+        setConfirmationText("");
       }
-      onOpenChange(open)
+      onOpenChange(open);
     },
     [onOpenChange]
-  )
+  );
 
   const handleConfirm = useCallback(
     async (e: React.MouseEvent) => {
-      e.preventDefault()
-      if (!isValid || isDeleting) return
-      await onConfirm()
+      e.preventDefault();
+      if (!isValid || isDeleting) return;
+      await onConfirm();
     },
     [isValid, isDeleting, onConfirm]
-  )
+  );
 
   return (
     <AlertDialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -69,9 +63,7 @@ export function DeleteAccountDialog({
           </AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-4">
-              <p className="font-medium text-foreground">
-                Ta akcja jest nieodwracalna. Po usunięciu konta:
-              </p>
+              <p className="font-medium text-foreground">Ta akcja jest nieodwracalna. Po usunięciu konta:</p>
               <ul className="list-disc list-inside space-y-1 text-sm">
                 <li>Wszystkie Twoje oceny kaw zostaną usunięte</li>
                 <li>Twój profil zostanie trwale usunięty</li>
@@ -104,7 +96,7 @@ export function DeleteAccountDialog({
               aria-describedby="confirmation-hint"
             />
             <p id="confirmation-hint" className="text-xs text-muted-foreground">
-              Wpisz dokładnie "{CONFIRMATION_WORD}" (wielkość liter ma znaczenie)
+              Wpisz dokładnie &quot;{CONFIRMATION_WORD}&quot; (wielkość liter ma znaczenie)
             </p>
           </div>
         </div>
@@ -122,11 +114,11 @@ export function DeleteAccountDialog({
                 Usuwanie...
               </>
             ) : (
-              'Usuń konto'
+              "Usuń konto"
             )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

@@ -12,9 +12,7 @@ const page = Number.isInteger(parsedPage) && parsedPage >= 1 ? parsedPage : 1;
 
 const parsedPageSize = rawPageSize ? parseInt(rawPageSize, 10) : 100;
 const pageSize =
-  Number.isInteger(parsedPageSize) && parsedPageSize >= 1 && parsedPageSize <= 100
-    ? parsedPageSize
-    : 100;
+  Number.isInteger(parsedPageSize) && parsedPageSize >= 1 && parsedPageSize <= 100 ? parsedPageSize : 100;
 
 const initialQuery = { page, pageSize };
 ---

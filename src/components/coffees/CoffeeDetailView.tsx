@@ -1,11 +1,11 @@
-import { memo, useCallback, useState } from 'react'
-import { useAuthSession } from '@/components/auth/useAuthSession'
-import { useCoffeeDetail, type CoffeeDetailVM, type ApiErrorState } from './hooks/useCoffeeDetail'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { RatingBadge } from './shared'
-import { Loader2, AlertCircle, ArrowLeft, ExternalLink, Star } from 'lucide-react'
+import { memo, useCallback, useState } from "react";
+import { useAuthSession } from "@/components/auth/useAuthSession";
+import { useCoffeeDetail, type CoffeeDetailVM, type ApiErrorState } from "./hooks/useCoffeeDetail";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RatingBadge } from "./shared";
+import { Loader2, AlertCircle, ArrowLeft, ExternalLink, Star } from "lucide-react";
 
 // ============================================================================
 // Sub-components
@@ -17,17 +17,17 @@ function LoadingState() {
       <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       <p className="text-muted-foreground">Ładowanie szczegółów kawy...</p>
     </div>
-  )
+  );
 }
 
-type ErrorBannerProps = {
-  error: ApiErrorState
-  onRetry?: () => void
-  showBackLink?: boolean
+interface ErrorBannerProps {
+  error: ApiErrorState;
+  onRetry?: () => void;
+  showBackLink?: boolean;
 }
 
 function ErrorBanner({ error, onRetry, showBackLink }: ErrorBannerProps) {
-  const is404 = error.code === 'coffee_not_found'
+  const is404 = error.code === "coffee_not_found";
 
   return (
     <Alert variant="destructive">
@@ -48,7 +48,7 @@ function ErrorBanner({ error, onRetry, showBackLink }: ErrorBannerProps) {
         </div>
       </AlertDescription>
     </Alert>
-  )
+  );
 }
 
 function BackLink() {
@@ -60,11 +60,11 @@ function BackLink() {
       <ArrowLeft className="h-4 w-4" />
       Powrót do listy kaw
     </a>
-  )
+  );
 }
 
-type CoffeeHeaderProps = {
-  coffee: CoffeeDetailVM
+interface CoffeeHeaderProps {
+  coffee: CoffeeDetailVM;
 }
 
 function CoffeeHeader({ coffee }: CoffeeHeaderProps) {
@@ -73,21 +73,19 @@ function CoffeeHeader({ coffee }: CoffeeHeaderProps) {
       <h1 className="text-2xl font-bold sm:text-3xl">{coffee.name}</h1>
       <div className="flex flex-wrap items-center gap-3">
         <RatingBadge value={coffee.avgMain} size="lg" />
-        <span className="text-sm text-muted-foreground">
-          {formatRatingsCount(coffee.ratingsCount)}
-        </span>
+        <span className="text-sm text-muted-foreground">{formatRatingsCount(coffee.ratingsCount)}</span>
       </div>
     </div>
-  )
+  );
 }
 
-type RoasteryInfoProps = {
-  coffee: CoffeeDetailVM
+interface RoasteryInfoProps {
+  coffee: CoffeeDetailVM;
 }
 
 function RoasteryInfo({ coffee }: RoasteryInfoProps) {
   if (!coffee.roasteryName) {
-    return null
+    return null;
   }
 
   return (
@@ -98,49 +96,40 @@ function RoasteryInfo({ coffee }: RoasteryInfoProps) {
         className="inline-flex items-center gap-1 text-base font-medium hover:text-primary transition-colors"
       >
         {coffee.roasteryName}
-        {coffee.roasteryCity && (
-          <span className="text-muted-foreground font-normal">
-            , {coffee.roasteryCity}
-          </span>
-        )}
+        {coffee.roasteryCity && <span className="text-muted-foreground font-normal">, {coffee.roasteryCity}</span>}
         <ExternalLink className="h-3.5 w-3.5 ml-1" aria-hidden="true" />
       </a>
     </div>
-  )
+  );
 }
 
-type MetricDisplayProps = {
-  label: string
-  value: number | null
-  showBar?: boolean
+interface MetricDisplayProps {
+  label: string;
+  value: number | null;
+  showBar?: boolean;
 }
 
 const MetricDisplay = memo(function MetricDisplay({ label, value, showBar = true }: MetricDisplayProps) {
-  const displayValue = value !== null ? value.toFixed(1) : 'Brak danych'
-  const percentage = value !== null ? ((value - 1) / 4) * 100 : 0
+  const displayValue = value !== null ? value.toFixed(1) : "Brak danych";
+  const percentage = value !== null ? ((value - 1) / 4) * 100 : 0;
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">{label}</span>
-        <span className={`text-sm font-semibold ${value === null ? 'text-muted-foreground' : ''}`}>
-          {displayValue}
-        </span>
+        <span className={`text-sm font-semibold ${value === null ? "text-muted-foreground" : ""}`}>{displayValue}</span>
       </div>
       {showBar && value !== null && (
         <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full bg-primary transition-all"
-            style={{ width: `${percentage}%` }}
-          />
+          <div className="h-full bg-primary transition-all" style={{ width: `${percentage}%` }} />
         </div>
       )}
     </div>
-  )
-})
+  );
+});
 
-type MetricsSectionProps = {
-  avgMain: number | null
+interface MetricsSectionProps {
+  avgMain: number | null;
 }
 
 function MetricsSection({ avgMain }: MetricsSectionProps) {
@@ -159,80 +148,80 @@ function MetricsSection({ avgMain }: MetricsSectionProps) {
         </p>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-type RateCoffeeButtonProps = {
-  coffeeId: string
+interface RateCoffeeButtonProps {
+  coffeeId: string;
 }
 
 function RateCoffeeButton({ coffeeId }: RateCoffeeButtonProps) {
-  const { isAuthenticated, isLoading: isAuthLoading, userId, accessToken } = useAuthSession()
-  const [isCheckingProfile, setIsCheckingProfile] = useState(false)
+  const { isAuthenticated, isLoading: isAuthLoading, userId, accessToken } = useAuthSession();
+  const [isCheckingProfile, setIsCheckingProfile] = useState(false);
 
   const handleClick = useCallback(async () => {
-    const rateUrl = `/coffees/${coffeeId}/rate`
+    const rateUrl = `/coffees/${coffeeId}/rate`;
 
     if (!isAuthenticated) {
       // Not authenticated - redirect to login
-      window.location.assign(`/login?returnTo=${encodeURIComponent(rateUrl)}`)
-      return
+      window.location.assign(`/login?returnTo=${encodeURIComponent(rateUrl)}`);
+      return;
     }
 
     // Authenticated - check for display_name before redirecting
     if (!userId || !accessToken) {
-      window.location.assign(`/login?returnTo=${encodeURIComponent(rateUrl)}`)
-      return
+      window.location.assign(`/login?returnTo=${encodeURIComponent(rateUrl)}`);
+      return;
     }
 
-    setIsCheckingProfile(true)
+    setIsCheckingProfile(true);
 
     try {
       const response = await fetch(`/api/profiles/${userId}`, {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
-      })
+      });
 
       if (response.status === 404) {
         // Profile not found - redirect to set display name
-        window.location.assign(`/account/display-name?returnTo=${encodeURIComponent(rateUrl)}`)
-        return
+        window.location.assign(`/account/display-name?returnTo=${encodeURIComponent(rateUrl)}`);
+        return;
       }
 
       if (!response.ok) {
         // Error fetching profile - let the rate page handle it
-        window.location.assign(rateUrl)
-        return
+        window.location.assign(rateUrl);
+        return;
       }
 
-      const profile = await response.json()
+      const profile = await response.json();
 
       if (profile.displayName === null) {
         // Display name not set - redirect to set it
-        window.location.assign(`/account/display-name?returnTo=${encodeURIComponent(rateUrl)}`)
-        return
+        window.location.assign(`/account/display-name?returnTo=${encodeURIComponent(rateUrl)}`);
+        return;
       }
 
       // All conditions met - navigate to rate page
-      window.location.assign(rateUrl)
+      window.location.assign(rateUrl);
     } catch (error) {
-      console.error('[RateCoffeeButton] Error checking profile:', error)
+      console.error("[RateCoffeeButton] Error checking profile:", error);
       // On error, let the rate page handle the check
-      window.location.assign(rateUrl)
+      window.location.assign(rateUrl);
     } finally {
-      setIsCheckingProfile(false)
+      setIsCheckingProfile(false);
     }
-  }, [coffeeId, isAuthenticated, userId, accessToken])
+  }, [coffeeId, isAuthenticated, userId, accessToken]);
 
   // Don't render while auth is loading
   if (isAuthLoading || isCheckingProfile) {
     return (
       <Button disabled className="w-full sm:w-auto">
         <Loader2 className="h-4 w-4 animate-spin mr-2" />
-        {isCheckingProfile ? 'Sprawdzanie...' : 'Ładowanie...'}
+        {isCheckingProfile ? "Sprawdzanie..." : "Ładowanie..."}
       </Button>
-    )
+    );
   }
 
   return (
@@ -240,7 +229,7 @@ function RateCoffeeButton({ coffeeId }: RateCoffeeButtonProps) {
       <Star className="h-4 w-4 mr-2" />
       Oceń tę kawę
     </Button>
-  )
+  );
 }
 
 // ============================================================================
@@ -249,36 +238,36 @@ function RateCoffeeButton({ coffeeId }: RateCoffeeButtonProps) {
 
 function formatRatingsCount(count: number): string {
   if (count === 0) {
-    return 'Brak ocen'
+    return "Brak ocen";
   }
   if (count === 1) {
-    return '1 ocena'
+    return "1 ocena";
   }
   if (count >= 2 && count <= 4) {
-    return `${count} oceny`
+    return `${count} oceny`;
   }
-  return `${count} ocen`
+  return `${count} ocen`;
 }
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
-type CoffeeDetailViewProps = {
-  coffeeId: string
+interface CoffeeDetailViewProps {
+  coffeeId: string;
 }
 
 export function CoffeeDetailView({ coffeeId }: CoffeeDetailViewProps) {
-  const { data, isLoading, error, refetch } = useCoffeeDetail(coffeeId)
+  const { data, isLoading, error, refetch } = useCoffeeDetail(coffeeId);
 
   // Handle 404 error prominently
-  if (error?.code === 'coffee_not_found') {
+  if (error?.code === "coffee_not_found") {
     return (
       <div className="space-y-6">
         <BackLink />
         <ErrorBanner error={error} showBackLink />
       </div>
-    )
+    );
   }
 
   return (
@@ -290,9 +279,7 @@ export function CoffeeDetailView({ coffeeId }: CoffeeDetailViewProps) {
       {isLoading && <LoadingState />}
 
       {/* Error state (non-404) */}
-      {error && error.code !== 'coffee_not_found' && (
-        <ErrorBanner error={error} onRetry={refetch} />
-      )}
+      {error && error.code !== "coffee_not_found" && <ErrorBanner error={error} onRetry={refetch} />}
 
       {/* Coffee details when loaded */}
       {data && (
@@ -309,5 +296,5 @@ export function CoffeeDetailView({ coffeeId }: CoffeeDetailViewProps) {
         </>
       )}
     </div>
-  )
+  );
 }

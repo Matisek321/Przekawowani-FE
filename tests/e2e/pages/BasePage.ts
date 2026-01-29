@@ -39,10 +39,7 @@ export abstract class BasePage {
   /**
    * Wait for element to be visible with optional timeout.
    */
-  async waitForVisible(
-    locator: Locator,
-    timeout: number = 10000
-  ): Promise<void> {
+  async waitForVisible(locator: Locator, timeout = 10000): Promise<void> {
     await expect(locator).toBeVisible({ timeout });
   }
 

@@ -1,97 +1,93 @@
-import type { AuthError } from '@supabase/supabase-js'
-import type { SupabaseClient } from '../../db/supabase.client'
+import type { AuthError } from "@supabase/supabase-js";
+import type { SupabaseClient } from "../../db/supabase.client";
 
-export type AuthLoginResult = {
+export interface AuthLoginResult {
   user: {
-    id: string
-    email: string | null
-  }
+    id: string;
+    email: string | null;
+  };
   session: {
-    accessToken: string
-    refreshToken: string
-    expiresAt: number | null
-  }
+    accessToken: string;
+    refreshToken: string;
+    expiresAt: number | null;
+  };
 }
 
-type AuthServiceError = Error & { code: string }
+type AuthServiceError = Error & { code: string };
 
 function createAuthError(code: string): AuthServiceError {
-  const error = new Error(code) as AuthServiceError
-  error.code = code
-  return error
+  const error = new Error(code) as AuthServiceError;
+  error.code = code;
+  return error;
 }
 
-type RegisterResult = {
+interface RegisterResult {
   user: {
-    id: string
-    email: string | null
-  }
-  requiresEmailConfirmation: boolean
+    id: string;
+    email: string | null;
+  };
+  requiresEmailConfirmation: boolean;
 }
 
 function mapLoginErrorCode(error: AuthError): string {
-  if (error.status === 429) return 'too_many_requests'
+  if (error.status === 429) return "too_many_requests";
 
-  const message = error.message.toLowerCase()
-  if (message.includes('email not confirmed') || error.code === 'email_not_confirmed') {
-    return 'email_not_confirmed'
+  const message = error.message.toLowerCase();
+  if (message.includes("email not confirmed") || error.code === "email_not_confirmed") {
+    return "email_not_confirmed";
   }
-  if (error.status === 400 || error.status === 401 || message.includes('invalid')) {
-    return 'invalid_credentials'
+  if (error.status === 400 || error.status === 401 || message.includes("invalid")) {
+    return "invalid_credentials";
   }
 
-  return 'internal_error'
+  return "internal_error";
 }
 
 function mapRegisterErrorCode(error: AuthError): string {
-  if (error.status === 429) return 'too_many_requests'
+  if (error.status === 429) return "too_many_requests";
 
-  const message = error.message.toLowerCase()
-  if (message.includes('already registered') || message.includes('user already')) {
-    return 'email_taken'
+  const message = error.message.toLowerCase();
+  if (message.includes("already registered") || message.includes("user already")) {
+    return "email_taken";
   }
-  if (message.includes('password') && message.includes('weak')) {
-    return 'weak_password'
+  if (message.includes("password") && message.includes("weak")) {
+    return "weak_password";
   }
-  if (message.includes('invalid') && message.includes('email')) {
-    return 'invalid_email'
+  if (message.includes("invalid") && message.includes("email")) {
+    return "invalid_email";
   }
 
-  return 'internal_error'
+  return "internal_error";
 }
 
 function mapResetErrorCode(error: AuthError): string {
-  const message = error.message.toLowerCase()
-  if (message.includes('expired') || message.includes('invalid')) {
-    return 'invalid_token'
+  const message = error.message.toLowerCase();
+  if (message.includes("expired") || message.includes("invalid")) {
+    return "invalid_token";
   }
-  if (message.includes('password') && message.includes('weak')) {
-    return 'weak_password'
+  if (message.includes("password") && message.includes("weak")) {
+    return "weak_password";
   }
-  return 'internal_error'
+  return "internal_error";
 }
 
 function mapForgotPasswordErrorCode(error: AuthError): string {
-  if (error.status === 429) return 'too_many_requests'
-  return 'internal_error'
+  if (error.status === 429) return "too_many_requests";
+  return "internal_error";
 }
 
-export async function loginUser(
-  supabase: SupabaseClient,
-  email: string,
-  password: string,
-): Promise<AuthLoginResult> {
+export async function loginUser(supabase: SupabaseClient, email: string, password: string): Promise<AuthLoginResult> {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
-  })
+  });
 
   if (error) {
-    throw createAuthError(mapLoginErrorCode(error))
+    throw createAuthError(mapLoginErrorCode(error));
   }
 
   if (!data.user || !data.session) {
-    throw createAuthError('internal_error')
+    throw createAuthError("internal_error");
   }
 
   return {
@@ -104,25 +100,21 @@ export async function loginUser(
       refreshToken: data.session.refresh_token,
       expiresAt: data.session.expires_at ?? null,
     },
-  }
+  };
 }
 
-export async function registerUser(
-  supabase: SupabaseClient,
-  email: string,
-  password: string,
-): Promise<RegisterResult> {
+export async function registerUser(supabase: SupabaseClient, email: string, password: string): Promise<RegisterResult> {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-  })
+  });
 
   if (error) {
-    throw createAuthError(mapRegisterErrorCode(error))
+    throw createAuthError(mapRegisterErrorCode(error));
   }
 
   if (!data.user) {
-    throw createAuthError('internal_error')
+    throw createAuthError("internal_error");
   }
 
   return {
@@ -131,33 +123,30 @@ export async function registerUser(
       email: data.user.email ?? null,
     },
     requiresEmailConfirmation: !data.session,
-  }
+  };
 }
 
 export async function logoutUser(supabase: SupabaseClient): Promise<void> {
-  const { error } = await supabase.auth.signOut()
+  const { error } = await supabase.auth.signOut();
   if (error) {
-    throw createAuthError('internal_error')
+    throw createAuthError("internal_error");
   }
 }
 
 export async function sendPasswordResetEmail(
   supabase: SupabaseClient,
   email: string,
-  redirectTo: string,
+  redirectTo: string
 ): Promise<void> {
-  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
   if (error) {
-    throw createAuthError(mapForgotPasswordErrorCode(error))
+    throw createAuthError(mapForgotPasswordErrorCode(error));
   }
 }
 
-export async function updatePassword(
-  supabase: SupabaseClient,
-  newPassword: string,
-): Promise<void> {
-  const { error } = await supabase.auth.updateUser({ password: newPassword })
+export async function updatePassword(supabase: SupabaseClient, newPassword: string): Promise<void> {
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
   if (error) {
-    throw createAuthError(mapResetErrorCode(error))
+    throw createAuthError(mapResetErrorCode(error));
   }
 }

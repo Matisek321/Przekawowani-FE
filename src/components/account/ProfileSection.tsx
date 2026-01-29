@@ -1,9 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Mail, User } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Mail, User } from "lucide-react";
 
-type ProfileSectionProps = {
-  email: string
-  displayName: string | null
+interface ProfileSectionProps {
+  email: string;
+  displayName: string | null;
 }
 
 /**
@@ -21,7 +21,9 @@ export function ProfileSection({ email, displayName }: ProfileSectionProps) {
           <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">Email</p>
-            <p className="text-sm" data-test-id="profile-section-email">{email}</p>
+            <p className="text-sm" data-test-id="profile-section-email">
+              {email}
+            </p>
           </div>
         </div>
 
@@ -29,11 +31,11 @@ export function ProfileSection({ email, displayName }: ProfileSectionProps) {
         <div className="flex items-start gap-3">
           <User className="h-5 w-5 text-muted-foreground mt-0.5" />
           <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground">
-              Nazwa wyświetlana
-            </p>
+            <p className="text-sm font-medium text-muted-foreground">Nazwa wyświetlana</p>
             {displayName ? (
-              <p className="text-sm" data-test-id="profile-section-display-name">{displayName}</p>
+              <p className="text-sm" data-test-id="profile-section-display-name">
+                {displayName}
+              </p>
             ) : (
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground italic" data-test-id="profile-section-display-name-not-set">
@@ -52,5 +54,5 @@ export function ProfileSection({ email, displayName }: ProfileSectionProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

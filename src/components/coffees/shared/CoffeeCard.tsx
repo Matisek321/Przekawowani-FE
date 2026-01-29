@@ -1,31 +1,31 @@
-import { memo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { RatingBadge } from './RatingBadge'
+import { memo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RatingBadge } from "./RatingBadge";
 
-export type CoffeeListItemVM = {
-  id: string
-  name: string
-  roasteryId: string
-  avgMain: number | null
-  ratingsCount: number
-  href: string
+export interface CoffeeListItemVM {
+  id: string;
+  name: string;
+  roasteryId: string;
+  avgMain: number | null;
+  ratingsCount: number;
+  href: string;
 }
 
-type CoffeeCardProps = {
-  item: CoffeeListItemVM
+interface CoffeeCardProps {
+  item: CoffeeListItemVM;
 }
 
 function formatRatingsCount(count: number): string {
   if (count === 0) {
-    return 'Brak ocen'
+    return "Brak ocen";
   }
   if (count === 1) {
-    return '1 ocena'
+    return "1 ocena";
   }
   if (count >= 2 && count <= 4) {
-    return `${count} oceny`
+    return `${count} oceny`;
   }
-  return `${count} ocen`
+  return `${count} ocen`;
 }
 
 function CoffeeCardComponent({ item }: CoffeeCardProps) {
@@ -42,13 +42,11 @@ function CoffeeCardComponent({ item }: CoffeeCardProps) {
           <div className="flex flex-wrap items-center gap-2">
             <RatingBadge value={item.avgMain} />
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {formatRatingsCount(item.ratingsCount)}
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">{formatRatingsCount(item.ratingsCount)}</p>
         </CardContent>
       </Card>
     </a>
-  )
+  );
 }
 
-export const CoffeeCard = memo(CoffeeCardComponent)
+export const CoffeeCard = memo(CoffeeCardComponent);

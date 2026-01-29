@@ -1,34 +1,34 @@
-import { useCallback, useId } from 'react'
-import { Label } from '@/components/ui/label'
-import type { RatingScore } from '@/types'
+import { useCallback, useId } from "react";
+import { Label } from "@/components/ui/label";
+import type { RatingScore } from "@/types";
 
-const RATING_VALUES: RatingScore[] = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
-const TICK_MARKS = [1, 2, 3, 4, 5]
+const RATING_VALUES: RatingScore[] = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
+const TICK_MARKS = [1, 2, 3, 4, 5];
 
-type RatingSliderProps = {
-  label: string
-  name: string
-  value: RatingScore
-  onChange: (value: RatingScore) => void
-  disabled?: boolean
-  error?: string
-  description?: string
+interface RatingSliderProps {
+  label: string;
+  name: string;
+  value: RatingScore;
+  onChange: (value: RatingScore) => void;
+  disabled?: boolean;
+  error?: string;
+  description?: string;
 }
 
 /**
  * Validates if a number is a valid RatingScore.
  */
 function isValidRatingScore(value: number): value is RatingScore {
-  return RATING_VALUES.includes(value as RatingScore)
+  return RATING_VALUES.includes(value as RatingScore);
 }
 
 /**
  * Clamps and rounds a number to the nearest valid RatingScore.
  */
 function toRatingScore(value: number): RatingScore {
-  const clamped = Math.max(1, Math.min(5, value))
-  const rounded = Math.round(clamped * 2) / 2
-  return isValidRatingScore(rounded) ? rounded : 3
+  const clamped = Math.max(1, Math.min(5, value));
+  const rounded = Math.round(clamped * 2) / 2;
+  return isValidRatingScore(rounded) ? rounded : 3;
 }
 
 /**
@@ -44,36 +44,32 @@ export function RatingSlider({
   error,
   description,
 }: RatingSliderProps) {
-  const componentId = useId()
-  const inputId = `${componentId}-${name}`
-  const errorId = `${componentId}-${name}-error`
-  const descriptionId = `${componentId}-${name}-description`
+  const componentId = useId();
+  const inputId = `${componentId}-${name}`;
+  const errorId = `${componentId}-${name}-error`;
+  const descriptionId = `${componentId}-${name}-description`;
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const numValue = parseFloat(e.target.value)
-      const ratingScore = toRatingScore(numValue)
-      onChange(ratingScore)
+      const numValue = parseFloat(e.target.value);
+      const ratingScore = toRatingScore(numValue);
+      onChange(ratingScore);
     },
     [onChange]
-  )
+  );
 
   const handleTickClick = useCallback(
     (tickValue: number) => {
-      if (disabled) return
-      const ratingScore = toRatingScore(tickValue)
-      onChange(ratingScore)
+      if (disabled) return;
+      const ratingScore = toRatingScore(tickValue);
+      onChange(ratingScore);
     },
     [disabled, onChange]
-  )
+  );
 
   // Build aria-describedby based on available elements
-  const ariaDescribedBy = [
-    description ? descriptionId : null,
-    error ? errorId : null,
-  ]
-    .filter(Boolean)
-    .join(' ') || undefined
+  const ariaDescribedBy =
+    [description ? descriptionId : null, error ? errorId : null].filter(Boolean).join(" ") || undefined;
 
   return (
     <div className="space-y-2">
@@ -82,11 +78,7 @@ export function RatingSlider({
         <Label htmlFor={inputId} className="text-sm font-medium">
           {label} <span className="text-destructive">*</span>
         </Label>
-        <span
-          className="text-lg font-semibold tabular-nums"
-          aria-live="polite"
-          aria-atomic="true"
-        >
+        <span className="text-lg font-semibold tabular-nums" aria-live="polite" aria-atomic="true">
           {value.toFixed(1)}
         </span>
       </div>
@@ -132,18 +124,8 @@ export function RatingSlider({
               tabIndex={-1}
               aria-hidden="true"
             >
-              <span
-                className={`w-0.5 h-2 ${
-                  tick <= value ? 'bg-primary' : 'bg-muted-foreground/30'
-                }`}
-              />
-              <span
-                className={`text-xs ${
-                  tick <= value
-                    ? 'text-primary font-medium'
-                    : 'text-muted-foreground'
-                }`}
-              >
+              <span className={`w-0.5 h-2 ${tick <= value ? "bg-primary" : "bg-muted-foreground/30"}`} />
+              <span className={`text-xs ${tick <= value ? "text-primary font-medium" : "text-muted-foreground"}`}>
                 {tick}
               </span>
             </button>
@@ -158,5 +140,5 @@ export function RatingSlider({
         </p>
       )}
     </div>
-  )
+  );
 }

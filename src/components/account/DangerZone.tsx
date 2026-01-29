@@ -1,15 +1,14 @@
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { AlertTriangle, Trash2 } from 'lucide-react'
-import { DeleteAccountDialog } from './DeleteAccountDialog'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, Trash2 } from "lucide-react";
+import { DeleteAccountDialog } from "./DeleteAccountDialog";
 
-type DangerZoneProps = {
-  onDeleteAccount: () => Promise<void>
-  isDeleting: boolean
-  deleteError: string | null
-  isDeleteDialogOpen: boolean
-  onDeleteDialogOpenChange: (open: boolean) => void
+interface DangerZoneProps {
+  onDeleteAccount: () => Promise<void>;
+  isDeleting: boolean;
+  deleteError: string | null;
+  isDeleteDialogOpen: boolean;
+  onDeleteDialogOpenChange: (open: boolean) => void;
 }
 
 /**
@@ -34,16 +33,11 @@ export function DangerZone({
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">
-              Po usunięciu konta wszystkie Twoje dane zostaną trwale usunięte,
-              w tym Twój profil i wszystkie wystawione oceny kaw. Ta akcja jest
-              nieodwracalna.
+              Po usunięciu konta wszystkie Twoje dane zostaną trwale usunięte, w tym Twój profil i wszystkie wystawione
+              oceny kaw. Ta akcja jest nieodwracalna.
             </p>
           </div>
-          <Button
-            variant="destructive"
-            onClick={() => onDeleteDialogOpenChange(true)}
-            disabled={isDeleting}
-          >
+          <Button variant="destructive" onClick={() => onDeleteDialogOpenChange(true)} disabled={isDeleting}>
             <Trash2 className="mr-2 h-4 w-4" />
             Usuń konto
           </Button>
@@ -58,5 +52,5 @@ export function DangerZone({
         error={deleteError}
       />
     </>
-  )
+  );
 }

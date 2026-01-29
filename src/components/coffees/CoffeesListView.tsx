@@ -1,13 +1,9 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Loader2, AlertCircle, Coffee } from 'lucide-react'
-import { CoffeeCard, PaginationControls, type PaginationState } from './shared'
-import {
-  useCoffeesList,
-  parseQueryFromUrl,
-  type CoffeesQueryState,
-} from './hooks/useCoffeesList'
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Loader2, AlertCircle, Coffee } from "lucide-react";
+import { CoffeeCard, PaginationControls, type PaginationState } from "./shared";
+import { useCoffeesList, parseQueryFromUrl, type CoffeesQueryState } from "./hooks/useCoffeesList";
 
 // ============================================================================
 // Sub-components
@@ -19,7 +15,7 @@ function LoadingState() {
       <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden="true" />
       <p className="text-muted-foreground">Ładowanie kaw...</p>
     </div>
-  )
+  );
 }
 
 function EmptyState() {
@@ -28,17 +24,15 @@ function EmptyState() {
       <Coffee className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
       <div>
         <h2 className="text-lg font-semibold">Brak kaw do wyświetlenia</h2>
-        <p className="text-sm text-muted-foreground">
-          Nie znaleziono żadnych kaw w rankingu.
-        </p>
+        <p className="text-sm text-muted-foreground">Nie znaleziono żadnych kaw w rankingu.</p>
       </div>
     </div>
-  )
+  );
 }
 
-type ErrorBannerProps = {
-  message: string
-  onRetry?: () => void
+interface ErrorBannerProps {
+  message: string;
+  onRetry?: () => void;
 }
 
 function ErrorBanner({ message, onRetry }: ErrorBannerProps) {
@@ -54,87 +48,85 @@ function ErrorBanner({ message, onRetry }: ErrorBannerProps) {
         )}
       </AlertDescription>
     </Alert>
-  )
+  );
 }
 
 // ============================================================================
 // Main Component: CoffeesListView
 // ============================================================================
 
-type CoffeesListViewProps = {
-  initialQuery: CoffeesQueryState
+interface CoffeesListViewProps {
+  initialQuery: CoffeesQueryState;
 }
 
 export function CoffeesListView({ initialQuery }: CoffeesListViewProps) {
-  const [query, setQuery] = useState<CoffeesQueryState>(initialQuery)
+  const [query, setQuery] = useState<CoffeesQueryState>(initialQuery);
 
-  const { data, isLoading, error, refetch } = useCoffeesList(query)
+  const { data, isLoading, error, refetch } = useCoffeesList(query);
 
   // Handle browser back/forward navigation
   useEffect(() => {
     const handlePopState = () => {
-      const newQuery = parseQueryFromUrl()
-      setQuery(newQuery)
-    }
+      const newQuery = parseQueryFromUrl();
+      setQuery(newQuery);
+    };
 
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [])
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   // Update URL when query changes
   const updateUrl = useCallback((newQuery: CoffeesQueryState) => {
-    const params = new URLSearchParams()
+    const params = new URLSearchParams();
 
     // Only add params if they differ from defaults
     if (newQuery.page !== 1) {
-      params.set('page', String(newQuery.page))
+      params.set("page", String(newQuery.page));
     }
     if (newQuery.pageSize !== 100) {
-      params.set('pageSize', String(newQuery.pageSize))
+      params.set("pageSize", String(newQuery.pageSize));
     }
 
-    const queryString = params.toString()
-    const newUrl = queryString ? `/coffees?${queryString}` : '/coffees'
-    window.history.pushState({}, '', newUrl)
-  }, [])
+    const queryString = params.toString();
+    const newUrl = queryString ? `/coffees?${queryString}` : "/coffees";
+    window.history.pushState({}, "", newUrl);
+  }, []);
 
   const handlePageChange = useCallback(
     (newPage: number) => {
-      const newQuery = { ...query, page: newPage }
-      setQuery(newQuery)
-      updateUrl(newQuery)
+      const newQuery = { ...query, page: newPage };
+      setQuery(newQuery);
+      updateUrl(newQuery);
     },
     [query, updateUrl]
-  )
+  );
 
   const handlePageSizeChange = useCallback(
     (newPageSize: number) => {
       // Reset to page 1 when changing page size
-      const newQuery = { page: 1, pageSize: newPageSize }
-      setQuery(newQuery)
-      updateUrl(newQuery)
+      const newQuery = { page: 1, pageSize: newPageSize };
+      setQuery(newQuery);
+      updateUrl(newQuery);
     },
     [updateUrl]
-  )
+  );
 
   const pagination: PaginationState | null = useMemo(() => {
-    if (!data) return null
+    if (!data) return null;
     return {
       page: data.page,
       pageSize: data.pageSize,
       total: data.total,
       totalPages: data.totalPages,
-    }
-  }, [data])
+    };
+  }, [data]);
 
   return (
     <div className="space-y-6">
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold">Ranking kaw</h1>
-        <p className="text-muted-foreground">
-          Lista wszystkich kaw posortowana według średniej oceny
-        </p>
+        <p className="text-muted-foreground">Lista wszystkich kaw posortowana według średniej oceny</p>
       </div>
 
       {/* Error state */}
@@ -165,5 +157,5 @@ export function CoffeesListView({ initialQuery }: CoffeesListViewProps) {
         </>
       )}
     </div>
-  )
+  );
 }

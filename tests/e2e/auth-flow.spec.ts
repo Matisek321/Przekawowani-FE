@@ -1,11 +1,5 @@
 import { test, expect } from "@playwright/test";
-import {
-  RegisterPage,
-  LoginPage,
-  AccountPage,
-  SetDisplayNamePage,
-  AuthButtonComponent,
-} from "./pages";
+import { RegisterPage, LoginPage, AccountPage, SetDisplayNamePage, AuthButtonComponent } from "./pages";
 
 /**
  * Helper to generate unique test email
@@ -55,11 +49,7 @@ test.describe("Authentication Flow", () => {
       const registerPage = new RegisterPage(page);
 
       await registerPage.goto();
-      await registerPage.fillForm(
-        "test@example.com",
-        "password123",
-        "different-password"
-      );
+      await registerPage.fillForm("test@example.com", "password123", "different-password");
       await registerPage.submit();
 
       await registerPage.expectConfirmPasswordError("Hasła nie są identyczne");
@@ -127,7 +117,7 @@ test.describe("Authentication Flow", () => {
     // These tests require a public page with the main Layout that includes AuthButton
     // Currently all main pages require authentication, redirecting to login
     // TODO: Add a public landing page or mock authentication for these tests
-    
+
     test.skip("should show login button when not authenticated", async ({ page }) => {
       const authButton = new AuthButtonComponent(page);
 
@@ -163,9 +153,7 @@ test.describe("Set Display Name Flow", () => {
     await expect(page).toHaveURL(/login/);
   });
 
-  test("should show validation error for empty display name", async ({
-    page,
-  }) => {
+  test("should show validation error for empty display name", async ({ page }) => {
     // This test would require authenticated session
     // Skipping actual assertion, showing structure
     test.skip();
@@ -210,9 +198,7 @@ test.describe("Full User Journey", () => {
    * Note: This test requires a real backend with email confirmation disabled
    * or a test environment with auto-confirmation.
    */
-  test.skip("should complete full registration and display name setup", async ({
-    page,
-  }) => {
+  test.skip("should complete full registration and display name setup", async ({ page }) => {
     const registerPage = new RegisterPage(page);
     const loginPage = new LoginPage(page);
     const accountPage = new AccountPage(page);

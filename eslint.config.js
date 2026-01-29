@@ -56,11 +56,23 @@ const reactConfig = tseslint.config({
   },
 });
 
+// Test files config - relax strict typing rules for mock objects
+const testConfig = tseslint.config({
+  files: ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}", "**/tests/**/*.{ts,tsx}"],
+  rules: {
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-empty-function": "off",
+  },
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
+  // Ignore auth callback page for prettier (inline script parsing issues)
+  { ignores: ["src/pages/auth/callback.astro"] },
   baseConfig,
   jsxA11yConfig,
   reactConfig,
+  testConfig,
   eslintPluginAstro.configs["flat/recommended"],
   eslintPluginPrettier
 );

@@ -42,9 +42,7 @@ export class RegisterPage extends BasePage {
     // Input fields
     this.emailInput = this.getByTestId("register-email-input");
     this.passwordInput = this.getByTestId("register-password-input");
-    this.confirmPasswordInput = this.getByTestId(
-      "register-confirm-password-input"
-    );
+    this.confirmPasswordInput = this.getByTestId("register-confirm-password-input");
 
     // Buttons
     this.submitButton = this.getByTestId("register-submit-button");
@@ -57,9 +55,7 @@ export class RegisterPage extends BasePage {
     this.formError = this.getByTestId("register-form-error");
     this.emailError = this.getByTestId("register-email-error");
     this.passwordError = this.getByTestId("register-password-error");
-    this.confirmPasswordError = this.getByTestId(
-      "register-confirm-password-error"
-    );
+    this.confirmPasswordError = this.getByTestId("register-confirm-password-error");
 
     // Success state
     this.successContainer = this.getByTestId("register-success");
@@ -77,17 +73,10 @@ export class RegisterPage extends BasePage {
   /**
    * Fill the registration form with provided data.
    */
-  async fillForm(
-    email: string,
-    password: string,
-    confirmPassword?: string
-  ): Promise<void> {
+  async fillForm(email: string, password: string, confirmPassword?: string): Promise<void> {
     await this.fillInput(this.emailInput, email);
     await this.fillInput(this.passwordInput, password);
-    await this.fillInput(
-      this.confirmPasswordInput,
-      confirmPassword ?? password
-    );
+    await this.fillInput(this.confirmPasswordInput, confirmPassword ?? password);
   }
 
   /**
@@ -101,11 +90,7 @@ export class RegisterPage extends BasePage {
    * Register a new user with provided credentials.
    * Combines filling form and submitting.
    */
-  async register(
-    email: string,
-    password: string,
-    confirmPassword?: string
-  ): Promise<void> {
+  async register(email: string, password: string, confirmPassword?: string): Promise<void> {
     await this.fillForm(email, password, confirmPassword);
     await this.submit();
   }
@@ -169,10 +154,7 @@ export class RegisterPage extends BasePage {
    * Navigate to login page via link.
    */
   async goToLogin(): Promise<void> {
-    await Promise.all([
-      this.page.waitForURL(/login/),
-      this.loginLink.click(),
-    ]);
+    await Promise.all([this.page.waitForURL(/login/), this.loginLink.click()]);
   }
 
   /**

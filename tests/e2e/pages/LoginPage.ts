@@ -94,7 +94,7 @@ export class LoginPage extends BasePage {
    * Wait for successful login redirect.
    * @param expectedUrl - URL to wait for after login (default: home page)
    */
-  async waitForLoginSuccess(expectedUrl: string = "/"): Promise<void> {
+  async waitForLoginSuccess(expectedUrl = "/"): Promise<void> {
     await this.page.waitForURL(expectedUrl);
   }
 
@@ -132,10 +132,7 @@ export class LoginPage extends BasePage {
    * Navigate to register page via link.
    */
   async goToRegister(): Promise<void> {
-    await Promise.all([
-      this.page.waitForURL(/register/),
-      this.registerLink.click(),
-    ]);
+    await Promise.all([this.page.waitForURL(/register/), this.registerLink.click()]);
   }
 
   /**

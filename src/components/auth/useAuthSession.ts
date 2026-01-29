@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { createSupabaseBrowserClient } from '@/db/supabase.client'
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { createSupabaseBrowserClient } from "@/db/supabase.client";
 
-type AuthSessionState = {
-  status: 'loading' | 'authenticated' | 'unauthenticated'
-  userId: string | null
-  accessToken: string | null
+interface AuthSessionState {
+  status: "loading" | "authenticated" | "unauthenticated";
+  userId: string | null;
+  accessToken: string | null;
 }
 
 /**
@@ -12,86 +12,85 @@ type AuthSessionState = {
  * Provides userId and accessToken for API calls.
  */
 export function useAuthSession() {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), [])
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [state, setState] = useState<AuthSessionState>({
-    status: 'loading',
+    status: "loading",
     userId: null,
     accessToken: null,
-  })
+  });
 
   const checkSession = useCallback(async () => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession()
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
 
       if (error) {
-        console.error('Error getting session:', error)
+        console.error("Error getting session:", error);
         setState({
-          status: 'unauthenticated',
+          status: "unauthenticated",
           userId: null,
           accessToken: null,
-        })
-        return
+        });
+        return;
       }
 
       if (session?.user) {
         setState({
-          status: 'authenticated',
+          status: "authenticated",
           userId: session.user.id,
           accessToken: session.access_token,
-        })
-        return
+        });
+        return;
       }
 
-      const response = await fetch('/api/auth/me', {
+      const response = await fetch("/api/auth/me", {
         headers: {
-          'Cache-Control': 'no-store',
+          "Cache-Control": "no-store",
         },
-      })
+      });
 
       if (response.ok) {
-        const data = await response.json().catch(() => null)
+        const data = await response.json().catch(() => null);
 
-        if (
-          data?.user?.id &&
-          data?.session?.accessToken &&
-          data?.session?.refreshToken
-        ) {
+        if (data?.user?.id && data?.session?.accessToken && data?.session?.refreshToken) {
           await supabase.auth.setSession({
             access_token: data.session.accessToken,
             refresh_token: data.session.refreshToken,
-          })
+          });
 
           setState({
-            status: 'authenticated',
+            status: "authenticated",
             userId: data.user.id,
             accessToken: data.session.accessToken,
-          })
-          return
+          });
+          return;
         }
       }
 
       setState({
-        status: 'unauthenticated',
+        status: "unauthenticated",
         userId: null,
         accessToken: null,
-      })
+      });
     } catch (error) {
-      console.error('Error checking session:', error)
+      console.error("Error checking session:", error);
       setState({
-        status: 'unauthenticated',
+        status: "unauthenticated",
         userId: null,
         accessToken: null,
-      })
+      });
     }
-  }, [supabase])
+  }, [supabase]);
 
   useEffect(() => {
-    checkSession()
-  }, [checkSession])
+    checkSession();
+  }, [checkSession]);
 
   return {
     ...state,
-    isLoading: state.status === 'loading',
-    isAuthenticated: state.status === 'authenticated',
-  }
+    isLoading: state.status === "loading",
+    isAuthenticated: state.status === "authenticated",
+  };
 }

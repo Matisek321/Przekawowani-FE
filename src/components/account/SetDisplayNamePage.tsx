@@ -1,13 +1,13 @@
-import { useState, useEffect, useCallback } from 'react'
-import { useAuthSession } from '@/components/auth/useAuthSession'
-import { SetDisplayNameForm } from '@/components/account/SetDisplayNameForm'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Info, Loader2, AlertCircle } from 'lucide-react'
-import type { ProfileDto } from '@/types'
+import { useState, useEffect, useCallback } from "react";
+import { useAuthSession } from "@/components/auth/useAuthSession";
+import { SetDisplayNameForm } from "@/components/account/SetDisplayNameForm";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Info, Loader2, AlertCircle } from "lucide-react";
+import type { ProfileDto } from "@/types";
 
-type SetDisplayNamePageProps = {
-  returnTo?: string
+interface SetDisplayNamePageProps {
+  returnTo?: string;
 }
 
 /**
@@ -16,66 +16,66 @@ type SetDisplayNamePageProps = {
  * Otherwise renders the form for setting display_name.
  */
 export function SetDisplayNamePage({ returnTo }: SetDisplayNamePageProps) {
-  const { userId, accessToken, isLoading, isAuthenticated, status } = useAuthSession()
-  
-  const [isCheckingProfile, setIsCheckingProfile] = useState(true)
-  const [profileError, setProfileError] = useState<string | null>(null)
-  const [isRedirecting, setIsRedirecting] = useState(false)
+  const { userId, accessToken, isLoading, isAuthenticated, status } = useAuthSession();
+
+  const [isCheckingProfile, setIsCheckingProfile] = useState(true);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Check if user already has display_name set
   useEffect(() => {
-    if (status === 'loading') {
-      return
+    if (status === "loading") {
+      return;
     }
 
-    if (status === 'unauthenticated') {
+    if (status === "unauthenticated") {
       // Redirect to login
-      const loginUrl = returnTo 
+      const loginUrl = returnTo
         ? `/login?returnTo=${encodeURIComponent(`/account/display-name?returnTo=${encodeURIComponent(returnTo)}`)}`
-        : '/login?returnTo=/account/display-name'
-      window.location.assign(loginUrl)
-      return
+        : "/login?returnTo=/account/display-name";
+      window.location.assign(loginUrl);
+      return;
     }
 
     if (!userId || !accessToken) {
-      return
+      return;
     }
 
     const checkProfile = async () => {
       try {
         const response = await fetch(`/api/profiles/${userId}`, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
-        })
+        });
 
         if (response.ok) {
-          const profile: ProfileDto = await response.json()
-          
+          const profile: ProfileDto = await response.json();
+
           if (profile.displayName !== null) {
             // User already has display_name set, redirect
-            setIsRedirecting(true)
-            window.location.assign(returnTo ?? '/')
-            return
+            setIsRedirecting(true);
+            window.location.assign(returnTo ?? "/");
+            return;
           }
         }
-        
+
         // Profile not found (404) or displayName is null - allow setting
-        setIsCheckingProfile(false)
+        setIsCheckingProfile(false);
       } catch (error) {
-        console.error('Error checking profile:', error)
-        setProfileError('Nie udało się sprawdzić profilu. Odśwież stronę i spróbuj ponownie.')
-        setIsCheckingProfile(false)
+        console.error("Error checking profile:", error);
+        setProfileError("Nie udało się sprawdzić profilu. Odśwież stronę i spróbuj ponownie.");
+        setIsCheckingProfile(false);
       }
-    }
+    };
 
-    checkProfile()
-  }, [status, userId, accessToken, returnTo])
+    checkProfile();
+  }, [status, userId, accessToken, returnTo]);
 
-  const handleSuccess = useCallback((_profile: ProfileDto) => {
-    setIsRedirecting(true)
-    window.location.assign(returnTo ?? '/')
-  }, [returnTo])
+  const handleSuccess = useCallback(() => {
+    setIsRedirecting(true);
+    window.location.assign(returnTo ?? "/");
+  }, [returnTo]);
 
   // Show loading while checking auth session
   if (isLoading) {
@@ -86,7 +86,7 @@ export function SetDisplayNamePage({ returnTo }: SetDisplayNamePageProps) {
           <p className="text-muted-foreground">Sprawdzanie sesji...</p>
         </div>
       </div>
-    )
+    );
   }
 
   // Show loading while checking profile
@@ -98,7 +98,7 @@ export function SetDisplayNamePage({ returnTo }: SetDisplayNamePageProps) {
           <p className="text-muted-foreground">Sprawdzanie profilu...</p>
         </div>
       </div>
-    )
+    );
   }
 
   // Show redirecting state
@@ -110,7 +110,7 @@ export function SetDisplayNamePage({ returnTo }: SetDisplayNamePageProps) {
           <p className="text-muted-foreground">Przekierowuję...</p>
         </div>
       </div>
-    )
+    );
   }
 
   // Show error if profile check failed
@@ -122,19 +122,21 @@ export function SetDisplayNamePage({ returnTo }: SetDisplayNamePageProps) {
           <AlertDescription>{profileError}</AlertDescription>
         </Alert>
       </div>
-    )
+    );
   }
 
   // Not authenticated - will redirect in useEffect
   if (!isAuthenticated || !accessToken) {
-    return null
+    return null;
   }
 
   return (
     <div className="container mx-auto max-w-md px-4 py-8" data-test-id="set-display-name-page">
       <Card data-test-id="set-display-name-card">
         <CardHeader>
-          <CardTitle className="text-2xl" data-test-id="set-display-name-page-title">Ustaw nazwę wyświetlaną</CardTitle>
+          <CardTitle className="text-2xl" data-test-id="set-display-name-page-title">
+            Ustaw nazwę wyświetlaną
+          </CardTitle>
           <CardDescription>
             Wybierz swoją publiczną nazwę, która będzie widoczna dla innych użytkowników.
           </CardDescription>
@@ -150,12 +152,9 @@ export function SetDisplayNamePage({ returnTo }: SetDisplayNamePageProps) {
           </Alert>
 
           {/* Display name form */}
-          <SetDisplayNameForm
-            accessToken={accessToken}
-            onSuccess={handleSuccess}
-          />
+          <SetDisplayNameForm accessToken={accessToken} onSuccess={handleSuccess} />
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

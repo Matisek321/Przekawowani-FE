@@ -1,13 +1,13 @@
-import type { APIRoute } from 'astro'
-import { json, jsonUnauthorized } from '../../../lib/http'
+import type { APIRoute } from "astro";
+import { json, jsonUnauthorized } from "../../../lib/http";
 
-export const prerender = false
+export const prerender = false;
 
 export const GET: APIRoute = async (context) => {
-  const { user, session } = context.locals
+  const { user, session } = context.locals;
 
   if (!user || !session) {
-    return jsonUnauthorized('unauthorized', 'Authentication required')
+    return jsonUnauthorized("unauthorized", "Authentication required");
   }
 
   return json({
@@ -20,5 +20,5 @@ export const GET: APIRoute = async (context) => {
       refreshToken: session.refresh_token,
       expiresAt: session.expires_at ?? null,
     },
-  })
-}
+  });
+};

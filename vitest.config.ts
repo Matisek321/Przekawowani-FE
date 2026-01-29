@@ -21,12 +21,7 @@ export default defineConfig({
       reporter: ["text", "json", "html"],
       reportsDirectory: "./coverage",
       include: ["src/**/*.{ts,tsx}"],
-      exclude: [
-        "src/**/*.{test,spec}.{ts,tsx}",
-        "src/db/database.types.ts",
-        "src/env.d.ts",
-        "src/components/ui/**",
-      ],
+      exclude: ["src/**/*.{test,spec}.{ts,tsx}", "src/db/database.types.ts", "src/env.d.ts", "src/components/ui/**"],
     },
 
     /* === Globals and utilities === */

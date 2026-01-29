@@ -31,15 +31,9 @@ export class SetDisplayNamePage extends BasePage {
     super(page);
 
     // Page states
-    this.loadingSessionState = this.getByTestId(
-      "set-display-name-page-loading-session"
-    );
-    this.loadingProfileState = this.getByTestId(
-      "set-display-name-page-loading-profile"
-    );
-    this.redirectingState = this.getByTestId(
-      "set-display-name-page-redirecting"
-    );
+    this.loadingSessionState = this.getByTestId("set-display-name-page-loading-session");
+    this.loadingProfileState = this.getByTestId("set-display-name-page-loading-profile");
+    this.redirectingState = this.getByTestId("set-display-name-page-redirecting");
     this.errorState = this.getByTestId("set-display-name-page-error");
     this.errorAlert = this.getByTestId("set-display-name-page-error-alert");
 
@@ -70,9 +64,7 @@ export class SetDisplayNamePage extends BasePage {
    * Navigate to the set display name page with return URL.
    */
   async gotoWithReturnUrl(returnTo: string): Promise<void> {
-    await this.page.goto(
-      `/account/display-name?returnTo=${encodeURIComponent(returnTo)}`
-    );
+    await this.page.goto(`/account/display-name?returnTo=${encodeURIComponent(returnTo)}`);
     await this.waitForPageLoad();
   }
 
@@ -109,7 +101,7 @@ export class SetDisplayNamePage extends BasePage {
    * Wait for successful submission and redirect.
    * @param expectedUrl - URL to wait for after success (default: home page)
    */
-  async waitForSuccess(expectedUrl: string = "/"): Promise<void> {
+  async waitForSuccess(expectedUrl = "/"): Promise<void> {
     await this.page.waitForURL(expectedUrl);
   }
 
@@ -179,7 +171,7 @@ export class SetDisplayNamePage extends BasePage {
   /**
    * Assert the character counter displays correct value.
    */
-  async expectCharacterCount(current: number, max: number = 32): Promise<void> {
+  async expectCharacterCount(current: number, max = 32): Promise<void> {
     await expect(this.characterCounter).toContainText(`${current}/${max}`);
   }
 
