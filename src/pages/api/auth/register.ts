@@ -13,7 +13,11 @@ export const POST: APIRoute = async (context) => {
       return jsonBadRequest("validation_failed", "Invalid payload");
     }
 
-    const siteUrl = import.meta.env.SITE_URL || new URL(context.request.url).origin;
+    // Email confirmation link redirects to this URL.
+    // On Cloudflare: set SITE_URL in Pages → Settings → Environment variables.
+    // Locally / CI: set SITE_URL in .env or workflow env.
+    const siteUrl =
+      context.locals.runtime?.env?.SITE_URL ?? import.meta.env.SITE_URL ?? new URL(context.request.url).origin;
 
     try {
       const result = await registerUser(context.locals.supabase, parsed.data.email, parsed.data.password, siteUrl);

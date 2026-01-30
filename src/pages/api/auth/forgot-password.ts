@@ -17,7 +17,9 @@ export const POST: APIRoute = async (context) => {
       return jsonBadRequest("validation_failed", "Invalid payload");
     }
 
-    const siteUrl = import.meta.env.SITE_URL || new URL(context.request.url).origin;
+    // On Cloudflare: set SITE_URL in Pages → Settings → Environment variables.
+    const siteUrl =
+      context.locals.runtime?.env?.SITE_URL ?? import.meta.env.SITE_URL ?? new URL(context.request.url).origin;
 
     try {
       await sendPasswordResetEmail(context.locals.supabase, parsed.data.email, buildRedirectUrl(siteUrl));
