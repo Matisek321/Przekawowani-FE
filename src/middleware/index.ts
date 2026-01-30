@@ -30,8 +30,7 @@ function getSupabaseEnv(context: { locals: App.Locals }): SupabaseEnv {
   return {
     SUPABASE_URL: runtimeEnv?.SUPABASE_URL ?? import.meta.env.SUPABASE_URL,
     SUPABASE_KEY: runtimeEnv?.SUPABASE_KEY ?? import.meta.env.SUPABASE_KEY,
-    SUPABASE_SERVICE_ROLE_KEY:
-      runtimeEnv?.SUPABASE_SERVICE_ROLE_KEY ?? import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
+    SUPABASE_SERVICE_ROLE_KEY: runtimeEnv?.SUPABASE_SERVICE_ROLE_KEY ?? import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
   };
 }
 

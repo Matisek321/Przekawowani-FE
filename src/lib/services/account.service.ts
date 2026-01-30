@@ -15,11 +15,7 @@ function createAccountError(code: string): AccountServiceError {
  * 1. Deletes the user's profile (cascades to delete ratings via FK)
  * 2. Deletes the user from Supabase Auth
  */
-export async function deleteAccount(
-  supabase: SupabaseClient,
-  userId: string,
-  env: SupabaseEnv
-): Promise<void> {
+export async function deleteAccount(supabase: SupabaseClient, userId: string, env: SupabaseEnv): Promise<void> {
   // First, delete the profile (this will cascade delete ratings)
   const { error: profileError } = await supabase.from("profiles").delete().eq("user_id", userId);
 
