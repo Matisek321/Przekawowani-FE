@@ -6,7 +6,7 @@ import type { CoffeeDetailDto, CoffeeDto, CreateCoffeeCommand } from "../../type
  */
 export class CoffeeServiceError extends Error {
   constructor(
-    public readonly code: "roastery_not_found" | "coffee_duplicate" | "server_error",
+    public readonly code: "roastery_not_found" | "coffee_duplicate" | "coffee_not_found" | "server_error",
     message: string
   ) {
     super(message);
@@ -120,4 +120,40 @@ export async function createCoffee(
   };
 
   return dto;
+}
+
+/**
+ * Deletes a coffee by id.
+ * All associated ratings are deleted via cascade.
+ *
+ * @param supabase - The Supabase client instance
+ * @param coffeeId - Coffee UUID
+ * @throws CoffeeServiceError with code:
+ *   - 'coffee_not_found' if the coffee doesn't exist
+ *   - 'server_error' for unexpected errors
+ */
+export async function deleteCoffee(supabase: SupabaseClient, coffeeId: string): Promise<void> {
+  // 1) Check if coffee exists
+  const { data: coffee, error: fetchError } = await supabase
+    .from("coffees")
+    .select("id")
+    .eq("id", coffeeId)
+    .maybeSingle();
+
+  if (fetchError) {
+    console.error("[coffee.service] Error fetching coffee for deletion", { coffeeId, error: fetchError });
+    throw new CoffeeServiceError("server_error", "Failed to fetch coffee");
+  }
+
+  if (!coffee) {
+    throw new CoffeeServiceError("coffee_not_found", "Coffee not found");
+  }
+
+  // 2) Delete coffee (cascade will delete ratings)
+  const { error: deleteError } = await supabase.from("coffees").delete().eq("id", coffeeId);
+
+  if (deleteError) {
+    console.error("[coffee.service] Error deleting coffee", { coffeeId, error: deleteError });
+    throw new CoffeeServiceError("server_error", "Failed to delete coffee");
+  }
 }

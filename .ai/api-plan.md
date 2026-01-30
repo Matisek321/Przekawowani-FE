@@ -228,6 +228,17 @@ Conventions:
 - Errors:
   - 404 coffee_not_found
 
+3) Delete coffee by id
+- Method: DELETE
+- Path: `/api/coffees/{id}`
+- Description: Delete a coffee by id. Any authenticated user can delete any coffee. All associated ratings are deleted (cascade).
+- Auth: required
+- Response 204: No content (successful deletion)
+- Errors:
+  - 400 validation_failed (invalid id)
+  - 401 unauthorized (not authenticated)
+  - 404 coffee_not_found
+
 ### 2.4 Ratings
 
 MVP exposes only the current user’s rating write path and optionally fetch “my rating” for a coffee. Raw rating lists are not public; aggregates are used for listings.

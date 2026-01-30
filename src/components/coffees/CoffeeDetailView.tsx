@@ -1,11 +1,23 @@
 import { memo, useCallback, useState } from "react";
 import { useAuthSession } from "@/components/auth/useAuthSession";
 import { useCoffeeDetail, type CoffeeDetailVM, type ApiErrorState } from "./hooks/useCoffeeDetail";
+import { useCoffeeDelete } from "./hooks/useCoffeeDelete";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { RatingBadge } from "./shared";
-import { Loader2, AlertCircle, ArrowLeft, ExternalLink, Star } from "lucide-react";
+import { Loader2, AlertCircle, ArrowLeft, ExternalLink, Star, Trash2 } from "lucide-react";
 
 // ============================================================================
 // Sub-components
@@ -151,6 +163,64 @@ function MetricsSection({ avgMain }: MetricsSectionProps) {
   );
 }
 
+interface DeleteCoffeeButtonProps {
+  coffeeId: string;
+  coffeeName: string;
+}
+
+function DeleteCoffeeButton({ coffeeId, coffeeName }: DeleteCoffeeButtonProps) {
+  const { isAuthenticated, isLoading: isAuthLoading, accessToken } = useAuthSession();
+  const { isDeleting, error, deleteCoffee, clearError } = useCoffeeDelete(coffeeId, accessToken);
+
+  // Don't show delete button while auth is loading or if not authenticated
+  if (isAuthLoading || !isAuthenticated) {
+    return null;
+  }
+
+  const handleDelete = async () => {
+    const success = await deleteCoffee();
+    if (success) {
+      window.location.assign("/coffees");
+    }
+  };
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="destructive" size="sm" disabled={isDeleting}>
+          <Trash2 className="h-4 w-4 mr-2" />
+          {isDeleting ? "Usuwanie..." : "Usuń kawę"}
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Czy na pewno chcesz usunąć tę kawę?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Ta akcja jest nieodwracalna. Kawa &quot;{coffeeName}&quot; oraz wszystkie powiązane oceny
+            zostaną trwale usunięte.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={clearError}>Anuluj</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {isDeleting ? "Usuwanie..." : "Usuń"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 interface RateCoffeeButtonProps {
   coffeeId: string;
 }
@@ -290,8 +360,9 @@ export function CoffeeDetailView({ coffeeId }: CoffeeDetailViewProps) {
 
           <MetricsSection avgMain={data.avgMain} />
 
-          <div className="pt-4">
+          <div className="flex flex-wrap items-center gap-3 pt-4">
             <RateCoffeeButton coffeeId={coffeeId} />
+            <DeleteCoffeeButton coffeeId={coffeeId} coffeeName={data.name} />
           </div>
         </>
       )}

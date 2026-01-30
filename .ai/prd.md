@@ -40,7 +40,9 @@ W społeczności istnieje wielu miłośników kawy. Testowanie różnych kaw jes
 3.4 Dodawanie i edycja bytów
 - Każdy zalogowany użytkownik może dodać palarnię.
 - Kawa może być dodana wyłącznie z widoku konkretnej palarni (palarnia w kontekście).
-- Brak edycji i usuwania palarni/kaw po utworzeniu w MVP.
+- Brak edycji palarni/kaw po utworzeniu.
+- Brak usuwania palarni po utworzeniu.
+- Każdy zalogowany użytkownik może usunąć kawę.
 
 3.5 Ocenianie
 - Jedna ocena kawy na użytkownika per kawa.
@@ -74,7 +76,8 @@ W zakresie:
 - widoki list i szczegółów.
 
 Poza zakresem (MVP):
-- Edycja/usuwanie palarni i kaw po utworzeniu.
+- Edycja palarni i kaw po utworzeniu.
+- Usuwanie palarni po utworzeniu.
 - Filtrowanie i sortowanie po metrykach dodatkowych.
 - Anty‑spam, moderacja, system zgłoszeń.
 - System rekomendacji, integracje zewnętrzne.
@@ -187,11 +190,21 @@ Kryteria akceptacji:
 - UI nie udostępnia nieobsługiwanych opcji.
 
 US-013
-Tytuł: Brak edycji/usuwania palarni i kaw
-Opis: Jako użytkownik rozumiem, że nie mogę edytować ani usuwać palarni/kaw po utworzeniu.
+Tytuł: Brak edycji/usuwania palarni
+Opis: Jako użytkownik rozumiem, że nie mogę edytować ani usuwać palarni po utworzeniu.
 Kryteria akceptacji:
-- Endpointy/akcje edycji i usuwania nie istnieją w UI i API.
-- RLS blokuje UPDATE/DELETE na tabelach palarni i kaw.
+- Endpointy/akcje edycji i usuwania palarni nie istnieją w UI i API.
+- RLS blokuje UPDATE/DELETE na tabeli palarni.
+
+US-016
+Tytuł: Usuwanie kawy
+Opis: Jako zalogowany użytkownik chcę móc usunąć kawę z systemu.
+Kryteria akceptacji:
+- Każdy zalogowany użytkownik może usunąć dowolną kawę.
+- Usunięcie kawy powoduje usunięcie wszystkich powiązanych ocen (kaskada).
+- Przycisk usuwania widoczny dla zalogowanych użytkowników na stronie szczegółów kawy.
+- Przed usunięciem wyświetlany jest dialog potwierdzenia.
+- Po usunięciu użytkownik przekierowywany jest na listę kaw.
 
 US-014
 Tytuł: Stabilność i wydajność list
