@@ -6,7 +6,7 @@ import type { CoffeeDetailDto, CoffeeDto, CreateCoffeeCommand } from "../../type
  */
 export class CoffeeServiceError extends Error {
   constructor(
-    public readonly code: "roastery_not_found" | "coffee_duplicate" | "coffee_not_found" | "server_error",
+    public readonly code: "roastery_not_found" | "coffee_duplicate" | "coffee_not_found" | "forbidden" | "server_error",
     message: string
   ) {
     super(message);
@@ -15,7 +15,7 @@ export class CoffeeServiceError extends Error {
 }
 
 /**
- * Fetches a single coffee detail from the aggregated view (`coffee_aggregates`).
+ * Fetches a single coffee detail from the `coffees` table.
  * Returns null when the coffee doesn't exist.
  *
  * @param supabase - The Supabase client instance
@@ -23,9 +23,9 @@ export class CoffeeServiceError extends Error {
  */
 export async function getCoffeeById(supabase: SupabaseClient, id: string): Promise<CoffeeDetailDto | null> {
   const { data, error } = await supabase
-    .from("coffee_aggregates")
-    .select("coffee_id, roastery_id, name, avg_main, ratings_count, created_at")
-    .eq("coffee_id", id)
+    .from("coffees")
+    .select("id, roastery_id, name, avg_main, ratings_count, created_at, created_by")
+    .eq("id", id)
     .maybeSingle();
 
   if (error) {
@@ -35,19 +35,14 @@ export async function getCoffeeById(supabase: SupabaseClient, id: string): Promi
 
   if (!data) return null;
 
-  // Defensive guards: the view is typed as nullable, but domain DTO is not.
-  if (!data.coffee_id || !data.roastery_id || !data.name || data.ratings_count == null || !data.created_at) {
-    console.error("[coffee.service] Unexpected nullable fields in coffee_aggregates row", { id, data });
-    throw new CoffeeServiceError("server_error", "Failed to fetch coffee");
-  }
-
   const dto: CoffeeDetailDto = {
-    id: data.coffee_id,
+    id: data.id,
     roasteryId: data.roastery_id,
     name: data.name,
     avgMain: data.avg_main,
     ratingsCount: data.ratings_count,
     createdAt: data.created_at,
+    createdBy: data.created_by,
   };
 
   return dto;
@@ -58,6 +53,7 @@ export async function getCoffeeById(supabase: SupabaseClient, id: string): Promi
  *
  * @param supabase - The Supabase client instance
  * @param roasteryId - The UUID of the roastery
+ * @param userId - The UUID of the user creating the coffee
  * @param cmd - The command containing the coffee name
  * @returns The created coffee as CoffeeDto
  * @throws CoffeeServiceError with code:
@@ -68,6 +64,7 @@ export async function getCoffeeById(supabase: SupabaseClient, id: string): Promi
 export async function createCoffee(
   supabase: SupabaseClient,
   roasteryId: string,
+  userId: string,
   cmd: CreateCoffeeCommand
 ): Promise<CoffeeDto> {
   // 1) Verify roastery exists
@@ -92,6 +89,7 @@ export async function createCoffee(
     .insert({
       roastery_id: roasteryId,
       name: cmd.name,
+      created_by: userId,
     })
     .select("id, roastery_id, name, avg_main, ratings_count, created_at")
     .single();
@@ -124,19 +122,22 @@ export async function createCoffee(
 
 /**
  * Deletes a coffee by id.
+ * Only the user who created the coffee can delete it.
  * All associated ratings are deleted via cascade.
  *
  * @param supabase - The Supabase client instance
  * @param coffeeId - Coffee UUID
+ * @param userId - The UUID of the user attempting to delete
  * @throws CoffeeServiceError with code:
  *   - 'coffee_not_found' if the coffee doesn't exist
+ *   - 'forbidden' if the user is not the owner of the coffee
  *   - 'server_error' for unexpected errors
  */
-export async function deleteCoffee(supabase: SupabaseClient, coffeeId: string): Promise<void> {
-  // 1) Check if coffee exists
+export async function deleteCoffee(supabase: SupabaseClient, coffeeId: string, userId: string): Promise<void> {
+  // 1) Check if coffee exists and verify ownership
   const { data: coffee, error: fetchError } = await supabase
     .from("coffees")
-    .select("id")
+    .select("id, created_by")
     .eq("id", coffeeId)
     .maybeSingle();
 
@@ -149,7 +150,12 @@ export async function deleteCoffee(supabase: SupabaseClient, coffeeId: string): 
     throw new CoffeeServiceError("coffee_not_found", "Coffee not found");
   }
 
-  // 2) Delete coffee (cascade will delete ratings)
+  // 2) Verify ownership
+  if (coffee.created_by !== userId) {
+    throw new CoffeeServiceError("forbidden", "You can only delete coffees you created");
+  }
+
+  // 3) Delete coffee (cascade will delete ratings)
   const { error: deleteError } = await supabase.from("coffees").delete().eq("id", coffeeId);
 
   if (deleteError) {

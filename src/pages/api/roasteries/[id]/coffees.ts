@@ -92,7 +92,12 @@ export const POST: APIRoute = async (context) => {
     }
 
     // 4) Create coffee via service
-    const coffeeDto = await createCoffee(context.locals.supabase, parsedParams.data.id, parsedBody.data);
+    const coffeeDto = await createCoffee(
+      context.locals.supabase,
+      parsedParams.data.id,
+      userData.user.id,
+      parsedBody.data
+    );
 
     // 5) Return 201 Created with CoffeeDto
     return jsonCreated(coffeeDto as unknown as Record<string, unknown>);

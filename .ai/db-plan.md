@@ -30,6 +30,7 @@ Tabela users będzie zarządzana przez Supabase Auth.
 - normalized_name text GENERATED ALWAYS AS (lower(trim(unaccent(name)))) STORED
 - avg_main numeric(3,2) NULL DEFAULT NULL  -- średnia głównej oceny (denormalizacja)
 - ratings_count integer NOT NULL DEFAULT 0  -- liczba ocen (denormalizacja)
+- created_by uuid NULL REFERENCES auth.users(id) ON DELETE SET NULL  -- właściciel kawy
 - created_at timestamptz NOT NULL DEFAULT now()
 - Ograniczenia:
   - UNIQUE (roastery_id, normalized_name)
@@ -60,11 +61,13 @@ Tabela users będzie zarządzana przez Supabase Auth.
 ## 2. Relacje między tabelami
 - profiles 1—1 auth.users: `profiles.user_id` → `auth.users.id` (PK/FK, CASCADE)
 - roasteries 1—N coffees: `coffees.roastery_id` → `roasteries.id` (RESTRICT)
+- coffees N—1 users: `coffees.created_by` → `auth.users.id` (SET NULL) -- właściciel kawy
 - ratings N—1 coffees: `ratings.coffee_id` → `coffees.id` (CASCADE)
 - ratings N—1 users: `ratings.user_id` → `auth.users.id` (CASCADE)
 - Kardynalności kluczowe:
   - Palarnia ma wiele kaw (1:N)
   - Kawa należy do jednej palarni (N:1)
+  - Użytkownik może stworzyć wiele kaw (1:N)
   - Użytkownik może ocenić daną kawę maksymalnie raz (UNIQUE (user_id, coffee_id))
 
 
@@ -80,6 +83,7 @@ Tabela users będzie zarządzana przez Supabase Auth.
 - coffees:
   - UNIQUE (roastery_id, normalized_name)
   - INDEX (roastery_id)
+  - INDEX (created_by)  -- wyszukiwanie kaw użytkownika
   - INDEX (avg_main DESC NULLS LAST, ratings_count DESC, id DESC)  -- ranking globalny
   - INDEX (roastery_id, avg_main DESC NULLS LAST, ratings_count DESC, id DESC)  -- ranking w obrębie palarni
 
@@ -120,11 +124,11 @@ Zasady (przykładowe, zgodne z Supabase i JWT claimami):
 ### 4.3. coffees
 - SELECT: public (wszyscy)
   - USING: true
-- INSERT: tylko zalogowani
-  - USING: auth.role() = 'authenticated'
-  - CHECK: auth.role() = 'authenticated'
+- INSERT: tylko zalogowani (muszą ustawić siebie jako właściciela)
+  - CHECK: auth.uid() = created_by
 - UPDATE: zabronione (brak polityki)
-- DELETE: zabronione (brak polityki)
+- DELETE: tylko właściciel (twórca kawy)
+  - USING: auth.uid() = created_by
 
 ### 4.4. ratings
 - SELECT: tylko właściciel lub rola uprzywilejowana (np. admin/service)
@@ -148,13 +152,14 @@ Uwaga: rola Admin ma pełny dostęp (bypass) wg polityki claim `role = 'admin'` 
   - Publiczne listy i szczegóły korzystają z widoku `coffee_aggregates` opartego na tych kolumnach.
 - Skale ocen: przechowywane jako `smallint` ×2 (2..10), co eliminuje błędy zmiennoprzecinkowe i upraszcza CHECK.
 - Usuwanie konta: `ratings.user_id` ma ON DELETE CASCADE, dzięki czemu oceny są usuwane wraz z kontem zgodnie z PRD.
-- Brak edycji/usuwania palarni i kaw w MVP: egzekwowane przez brak polityk RLS dla UPDATE/DELETE oraz przez REVOKE na tych operacjach.
+- Brak edycji palarni i kaw w MVP: egzekwowane przez brak polityk RLS dla UPDATE oraz przez REVOKE na tych operacjach.
+- Usuwanie kaw: tylko właściciel (twórca) może usunąć kawę; egzekwowane przez RLS (auth.uid() = created_by).
 - Soft limity (MVP, bez paginacji): sugerowane `LIMIT` po stronie zapytań/API
   - 50 palarni na liście,
   - 30 kaw dla widoku palarni,
   - 100 kaw w widoku globalnym.
   Limity te nie są egzekwowane w DB (zostaną dodane paginacje w kolejnych iteracjach).
 - Indeksy sortujące: kierunki i `NULLS LAST` zostały określone tak, by odpowiadać zapytaniom ORDER BY dla rankingów; tie-breaker `id` zapewnia stabilny porządek.
-- Polityka prywatności ocen: surowe rekordy w `ratings` nie są publiczne; do UI wystarczą agregaty z `coffees`/widoku. Flaga „mała próba” wyliczana ad-hoc: `ratings_count < 3`.
+- Polityka prywatności ocen: surowe rekordy w `ratings` nie są publiczne; do UI wystarczą agregaty z `coffees`/widoku.
 
 

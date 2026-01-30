@@ -14,6 +14,7 @@ export interface CoffeeDetailVM {
   roasteryHref: string;
   avgMain: number | null;
   ratingsCount: number;
+  createdBy: string | null;
 }
 
 export interface ApiErrorState {
@@ -42,6 +43,7 @@ function mapCoffeeDetailToVM(coffee: CoffeeDetailDto, roastery?: RoasteryDto): C
     roasteryHref: `/roasteries/${coffee.roasteryId}`,
     avgMain: coffee.avgMain,
     ratingsCount: coffee.ratingsCount,
+    createdBy: coffee.createdBy,
   };
 }
 

@@ -166,14 +166,15 @@ function MetricsSection({ avgMain }: MetricsSectionProps) {
 interface DeleteCoffeeButtonProps {
   coffeeId: string;
   coffeeName: string;
+  createdBy: string | null;
 }
 
-function DeleteCoffeeButton({ coffeeId, coffeeName }: DeleteCoffeeButtonProps) {
-  const { isAuthenticated, isLoading: isAuthLoading, accessToken } = useAuthSession();
+function DeleteCoffeeButton({ coffeeId, coffeeName, createdBy }: DeleteCoffeeButtonProps) {
+  const { isAuthenticated, isLoading: isAuthLoading, accessToken, userId } = useAuthSession();
   const { isDeleting, error, deleteCoffee, clearError } = useCoffeeDelete(coffeeId, accessToken);
 
-  // Don't show delete button while auth is loading or if not authenticated
-  if (isAuthLoading || !isAuthenticated) {
+  // Don't show delete button while auth is loading, if not authenticated, or if user is not the owner
+  if (isAuthLoading || !isAuthenticated || !userId || createdBy !== userId) {
     return null;
   }
 
@@ -362,7 +363,7 @@ export function CoffeeDetailView({ coffeeId }: CoffeeDetailViewProps) {
 
           <div className="flex flex-wrap items-center gap-3 pt-4">
             <RateCoffeeButton coffeeId={coffeeId} />
-            <DeleteCoffeeButton coffeeId={coffeeId} coffeeName={data.name} />
+            <DeleteCoffeeButton coffeeId={coffeeId} coffeeName={data.name} createdBy={data.createdBy} />
           </div>
         </>
       )}

@@ -24,6 +24,7 @@ export interface Database {
         Row: {
           avg_main: number | null;
           created_at: string;
+          created_by: string | null;
           id: string;
           name: string;
           normalized_name: string | null;
@@ -33,6 +34,7 @@ export interface Database {
         Insert: {
           avg_main?: number | null;
           created_at?: string;
+          created_by?: string | null;
           id?: string;
           name: string;
           normalized_name?: string | null;
@@ -42,6 +44,7 @@ export interface Database {
         Update: {
           avg_main?: number | null;
           created_at?: string;
+          created_by?: string | null;
           id?: string;
           name?: string;
           normalized_name?: string | null;
@@ -49,6 +52,13 @@ export interface Database {
           roastery_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "coffees_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "coffees_roastery_id_fkey";
             columns: ["roastery_id"];

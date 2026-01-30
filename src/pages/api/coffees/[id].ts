@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { jsonBadRequest, jsonError, jsonNotFound, jsonOk, jsonUnauthorized } from "../../../lib/http";
+import { jsonBadRequest, jsonError, jsonForbidden, jsonNotFound, jsonOk, jsonUnauthorized } from "../../../lib/http";
 import { coffeePathParamsSchema } from "../../../lib/validation/coffees";
 import { getCoffeeById, deleteCoffee, CoffeeServiceError } from "../../../lib/services/coffee.service";
 import type { CoffeeDetailDto } from "../../../types";
@@ -45,13 +45,14 @@ export const GET: APIRoute = async (context) => {
 /**
  * DELETE /api/coffees/{id}
  *
- * Deletes a coffee by id. Any authenticated user can delete.
+ * Deletes a coffee by id. Only the user who created the coffee can delete it.
  * All associated ratings are deleted (cascade).
  *
  * Responses:
  * - 204: Successful deletion (no content)
  * - 400: Invalid id (non-UUID)
  * - 401: Unauthorized (not authenticated)
+ * - 403: Forbidden (user is not the owner)
  * - 404: Coffee not found
  * - 500: Internal server error
  */
@@ -73,8 +74,8 @@ export const DELETE: APIRoute = async (context) => {
 
     const { id } = parsedParams.data;
 
-    // 3) Delete coffee via service
-    await deleteCoffee(context.locals.supabase, id);
+    // 3) Delete coffee via service (includes ownership check)
+    await deleteCoffee(context.locals.supabase, id, user.id);
 
     // 4) Return 204 No Content
     return new Response(null, { status: 204 });
@@ -82,6 +83,9 @@ export const DELETE: APIRoute = async (context) => {
     if (err instanceof CoffeeServiceError) {
       if (err.code === "coffee_not_found") {
         return jsonNotFound("coffee_not_found", err.message);
+      }
+      if (err.code === "forbidden") {
+        return jsonForbidden("forbidden", err.message);
       }
       console.error("[DELETE /api/coffees/{id}] service error", { err, requestId });
       return jsonError("internal_error", "Unexpected error");

@@ -50,7 +50,7 @@ Poniżej lista wymaganych widoków (MVP) z mapowaniem na API, celami i kluczowym
 ### 2.2 Aplikacja (chroniona) – katalog i szczegóły
 
 - **Nazwa widoku**: Strona startowa (po zalogowaniu)  
-  - **Ścieżka widoku**: `/` (po zalogowaniu przekierowuje do `/roasteries` lub `/coffees`)  
+  - **Ścieżka widoku**: `/` (po zalogowaniu przekierowuje do `/roasteries`)  
   - **Główny cel**: szybkie wejście do katalogu.  
   - **Kluczowe informacje do wyświetlenia**: krótkie wprowadzenie + skróty nawigacyjne.  
   - **Kluczowe komponenty widoku**:
@@ -116,7 +116,7 @@ Poniżej lista wymaganych widoków (MVP) z mapowaniem na API, celami i kluczowym
   - **UX, dostępność i względy bezpieczeństwa**:
     - UX: jednoznaczny kontekst palarni (żeby uniknąć pomyłek).
   - **Mapowanie API**:
-    - POST `/api/roasteries/{id}/coffees`
+    - POST `/api/roasteries/{id}/coffees` (ustawia `created_by` na zalogowanego użytkownika)
 
 - **Nazwa widoku**: Globalna lista kaw (ranking)  
   - **Ścieżka widoku**: `/coffees?page=1&pageSize=100&sort=rating_desc`  
@@ -143,14 +143,17 @@ Poniżej lista wymaganych widoków (MVP) z mapowaniem na API, celami i kluczowym
     - Średnie dla metryk dodatkowych (wymóg PRD): moc/kwasowość/posmak  
       - Uwaga: API w planie “coffee detail” nie zawiera jeszcze tych średnich — jeśli pozostaje tak jak w planie, UI w MVP musi ograniczyć się do `avgMain` + liczników albo wymaga rozszerzenia endpointu.
   - **Kluczowe komponenty widoku**:
-    - Sekcja nagłówkowa: nazwa + wynik + badge “mała próba”
+    - Sekcja nagłówkowa: nazwa + wynik
     - Sekcja metryk (główna + dodatkowe) z etykietami
     - CTA “Oceń tę kawę” (wymaga `display_name`)
   - **UX, dostępność i względy bezpieczeństwa**:
     - UX: jasne wyjaśnienie “małej próby”.
     - Bezpieczeństwo: brak publicznej listy ocen (zgodnie z API i RLS).
+    - Bezpieczeństwo: usuwanie kawy egzekwowane przez RLS (`auth.uid() = created_by`).
+    - UX: przycisk usuwania widoczny tylko dla właściciela; dialog potwierdzenia przed usunięciem.
   - **Mapowanie API**:
     - GET `/api/coffees/{id}`
+    - DELETE `/api/coffees/{id}` (tylko dla właściciela)
     - (Dla prezentacji palarni) GET `/api/roasteries/{roasteryId}`
 
 - **Nazwa widoku**: Ocenianie kawy (formularz)  
@@ -281,9 +284,9 @@ Komponenty przekrojowe (współdzielone przez wiele widoków):
 - **EmptyState / LoadingState**: brak danych, ładowanie, skeleton.
 - **MetricDisplay**:
   - `RatingBadge` (średnia ocena)
-  - `SmallSampleBadge` (mała próba)
   - `MetricRow` (etykieta + wartość)
 - **RatingInput (step 0.5)**: kontrolka do wyboru 1–5 co 0.5 (wspólna dla 4 metryk) + walidacja.
+- **DeleteCoffeeButton**: przycisk usuwania kawy widoczny tylko dla właściciela (`isOwner`); z dialogiem potwierdzenia.
 - **ErrorBanner (minimalny)**: miejsce na komunikaty błędów (400/401/404/409/500), nawet jeśli MVP przewiduje uproszczone zachowanie.
 
 ---
@@ -298,10 +301,10 @@ Komponenty przekrojowe (współdzielone przez wiele widoków):
 - **US-006 Widok palarni i jej kaw** → `/roasteries/:id` (GET roastery + GET roastery coffees).
 - **US-007 Dodanie kawy z widoku palarni** → `/roasteries/:id/coffees/new` (POST `/api/roasteries/{id}/coffees`).
 - **US-008 Posortowana lista wszystkich kaw** → `/coffees` (GET `/api/coffees`, sort po `avgMain`).
-- **US-009 Szczegóły kawy** → `/coffees/:id` (GET `/api/coffees/{id}` + badge “mała próba”; metryki dodatkowe wymagają zgodności payloadu API).
+- **US-009 Szczegóły kawy** → `/coffees/:id` (GET `/api/coffees/{id}`; metryki dodatkowe wymagają zgodności payloadu API).
 - **US-010 Wystawienie oceny kawy** → `/coffees/:id/rate` (PUT `/api/coffees/{id}/my-rating`, 4 metryki wymagane).
 - **US-011 Edycja własnej oceny** → ten sam widok `/coffees/:id/rate` (upsert); prefill z GET my-rating możliwy jako usprawnienie, ale MVP może pozostać bez.
 - **US-012 Ograniczenia sortowania i filtrowania** → UI list bez dodatkowych filtrów/sortów; komunikat/informacja w listach.
-- **US-013 Brak edycji/usuwania palarni i kaw** → brak przycisków/tras edycji/usuwania; informacja w formularzach tworzenia.
+- **US-013 Brak edycji palarni i kaw; usuwanie kaw tylko przez właściciela** → brak przycisków edycji; przycisk usuwania kawy widoczny tylko dla właściciela (`created_by`); informacja w formularzach tworzenia.
 - **US-014 Stabilność i wydajność list** → architektura list oparta o paginację i ograniczony `pageSize`; minimalny payload per item.
 - **US-015 URL jako nośnik stanu** → `page` i `pageSize` w query params dla `/roasteries` i `/coffees` (opcjonalnie również dla list kaw palarni).

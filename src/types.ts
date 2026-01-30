@@ -86,7 +86,13 @@ export interface CoffeeDto {
 }
 
 export type CoffeeListResponse = PaginatedResponse<CoffeeDto>;
-export type CoffeeDetailDto = CoffeeDto;
+
+/**
+ * Coffee detail DTO with additional `createdBy` field for ownership checks.
+ */
+export interface CoffeeDetailDto extends CoffeeDto {
+  createdBy: CoffeeRow["created_by"];
+}
 
 /**
  * Command payload for `POST /api/roasteries/{id}/coffees`.

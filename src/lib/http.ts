@@ -1,4 +1,4 @@
-type JsonBody = Record<string, unknown> | unknown[];
+type JsonBody = Record<string, unknown> | unknown[] | object;
 
 interface JsonOptions {
   status?: number;

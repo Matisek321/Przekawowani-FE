@@ -2,9 +2,9 @@
 
 ## 1. Przegląd
 
-Widok szczegółów kawy prezentuje pełne informacje o wybranej kawie wraz z agregatami ocen społeczności. Realizuje historyjkę użytkownika US-009 (Szczegóły kawy), wyświetlając średnią ocenę główną, liczbę ocen, etykietę "mała próba" oraz średnie dla metryk dodatkowych (moc, kwasowość, posmak).
+Widok szczegółów kawy prezentuje pełne informacje o wybranej kawie wraz z agregatami ocen społeczności. Realizuje historyjkę użytkownika US-009 (Szczegóły kawy), wyświetlając średnią ocenę główną, liczbę ocen oraz średnie dla metryk dodatkowych (moc, kwasowość, posmak).
 
-Widok jest publicznie dostępny, ale przycisk "Oceń tę kawę" jest widoczny tylko dla zalogowanych użytkowników posiadających ustawiony `display_name`.
+Widok jest publicznie dostępny, ale przycisk "Oceń tę kawę" jest widoczny tylko dla zalogowanych użytkowników posiadających ustawiony `display_name`. Przycisk "Usuń kawę" jest widoczny tylko dla właściciela kawy (użytkownika, który ją utworzył).
 
 ## 2. Routing widoku
 
@@ -29,8 +29,7 @@ src/
     └── coffees/
         ├── CoffeeDetailView.tsx           # Główny komponent szczegółów kawy
         └── shared/
-            ├── RatingBadge.tsx            # Badge z oceną (kolor wg wartości)
-            └── SmallSampleBadge.tsx       # Badge "Mała próba"
+            └── RatingBadge.tsx            # Badge z oceną (kolor wg wartości)
 ```
 
 ### Drzewo komponentów
@@ -49,7 +48,8 @@ CoffeeDetailView
 │   └── Link do palarni
 ├── MetricsSection
 │   └── MetricDisplay[] (avgMain, avgStrength, avgAcidity, avgAftertaste)
-└── RateCoffeeButton (tylko dla zalogowanych z display_name)
+├── RateCoffeeButton (tylko dla zalogowanych z display_name)
+└── DeleteCoffeeButton (tylko dla właściciela kawy)
 ```
 
 ## 4. Szczegóły komponentów
@@ -158,7 +158,27 @@ CoffeeDetailView
   }
   ```
 
-### 4.6 RatingBadge (współdzielony)
+### 4.6 DeleteCoffeeButton
+
+- **Opis**: Przycisk usuwania kawy, widoczny tylko dla właściciela.
+- **Główne elementy**:
+  - Button "Usuń kawę" (wariant destructive)
+  - Dialog potwierdzenia usunięcia
+- **Obsługiwane interakcje**:
+  - Kliknięcie → wyświetlenie dialogu potwierdzenia
+  - Potwierdzenie → wywołanie `DELETE /api/coffees/{id}` → nawigacja do `/coffees`
+  - Anulowanie → zamknięcie dialogu
+- **Obsługiwana walidacja**: Sprawdzenie czy zalogowany użytkownik jest właścicielem kawy (`user.id === coffee.createdBy`)
+- **Typy**: Stan sesji z `useAuthSession`, CoffeeDetailVM
+- **Propsy**:
+  ```typescript
+  type DeleteCoffeeButtonProps = {
+    coffeeId: string
+    createdBy: string | null
+  }
+  ```
+
+### 4.7 RatingBadge (współdzielony)
 
 - **Opis**: Wizualna prezentacja oceny z kolorystyką zależną od wartości.
 - **Główne elementy**: Badge/span z wartością i odpowiednim kolorem tła
@@ -173,15 +193,6 @@ CoffeeDetailView
   }
   ```
 
-### 4.7 SmallSampleBadge (współdzielony)
-
-- **Opis**: Badge informujący o małej próbie statystycznej (< 3 oceny).
-- **Główne elementy**: Badge z ikoną info i tekstem "Mała próba"
-- **Obsługiwane interakcje**: Hover → tooltip z wyjaśnieniem
-- **Obsługiwana walidacja**: Brak
-- **Typy**: Brak specyficznych
-- **Propsy**: Brak (lub opcjonalny `className`)
-
 ## 5. Typy
 
 ### 5.1 Typy DTO (z API)
@@ -195,6 +206,7 @@ type CoffeeDetailDto = {
   avgMain: number | null        // Średnia głównej oceny
   ratingsCount: number          // Liczba ocen
   smallSample: boolean          // true jeśli ratingsCount < 3
+  createdBy: string | null      // UUID właściciela kawy
   createdAt: string             // ISO-8601
 }
 
@@ -221,6 +233,8 @@ type CoffeeDetailVM = {
   avgMain: number | null
   ratingsCount: number
   smallSample: boolean
+  createdBy: string | null      // UUID właściciela kawy
+  isOwner: boolean              // true jeśli zalogowany użytkownik jest właścicielem
   // Uwaga: W MVP brak średnich dla metryk dodatkowych w API
   // avgStrength?: number | null
   // avgAcidity?: number | null
@@ -304,12 +318,30 @@ RoasteryDto
 
 **Wykorzystanie**: Pobieranie nazwy i miasta palarni do wyświetlenia w szczegółach kawy.
 
-### 7.3 Mapowanie DTO → ViewModel
+### 7.3 DELETE /api/coffees/{id}
+
+**Żądanie**:
+```
+DELETE /api/coffees/{id}
+Authorization: Bearer {token}
+```
+
+**Odpowiedź 204**: Brak treści (sukces)
+
+**Błędy**:
+- 401: `unauthorized` - brak lub nieprawidłowy token
+- 403: `forbidden` - użytkownik nie jest właścicielem kawy
+- 404: `coffee_not_found` - kawa nie istnieje
+
+**Uwaga**: Usunięcie kawy powoduje kaskadowe usunięcie wszystkich jej ocen.
+
+### 7.4 Mapowanie DTO → ViewModel
 
 ```typescript
 function mapCoffeeDetailToVM(
   coffee: CoffeeDetailDto,
-  roastery?: RoasteryDto
+  roastery?: RoasteryDto,
+  currentUserId?: string
 ): CoffeeDetailVM {
   return {
     id: coffee.id,
@@ -321,6 +353,8 @@ function mapCoffeeDetailToVM(
     avgMain: coffee.avgMain,
     ratingsCount: coffee.ratingsCount,
     smallSample: coffee.smallSample,
+    createdBy: coffee.createdBy,
+    isOwner: currentUserId != null && coffee.createdBy === currentUserId,
   }
 }
 ```
@@ -333,6 +367,9 @@ function mapCoffeeDetailToVM(
 | Kliknięcie "Oceń tę kawę" (zalogowany z display_name) | Nawigacja do `/coffees/{id}/rate` |
 | Kliknięcie "Oceń tę kawę" (niezalogowany) | Przekierowanie do `/login?returnTo=/coffees/{id}/rate` |
 | Kliknięcie "Oceń tę kawę" (bez display_name) | Przekierowanie do `/account/display-name?returnTo=/coffees/{id}/rate` |
+| Kliknięcie "Usuń kawę" (właściciel) | Wyświetlenie dialogu potwierdzenia |
+| Potwierdzenie usunięcia | Wywołanie `DELETE /api/coffees/{id}` → nawigacja do `/coffees` |
+| Anulowanie usunięcia | Zamknięcie dialogu |
 | Kliknięcie "Powrót do listy" | Nawigacja do `/coffees` |
 | Kliknięcie linku palarni | Nawigacja do `/roasteries/{roasteryId}` |
 
@@ -345,17 +382,19 @@ function mapCoffeeDetailToVM(
 | Widok szczegółów | Brak | Widok publiczny, dostępny dla wszystkich |
 | Przycisk "Oceń" | Zalogowany | Przekierowanie do `/login` |
 | Przycisk "Oceń" | Posiada display_name | Przekierowanie do `/account/display-name` |
+| Przycisk "Usuń" | Zalogowany i właściciel (`user.id === coffee.createdBy`) | Przycisk niewidoczny |
 
 ### 9.2 Warunki wyświetlania UI
 
 | Element | Warunek | Zachowanie |
 |---------|---------|------------|
-| SmallSampleBadge | `ratingsCount < 3` | Wyświetl badge "Mała próba" |
 | RatingBadge | `avgMain !== null` | Wyświetl wartość z kolorem |
 | RatingBadge | `avgMain === null` | Wyświetl "Brak ocen" (szary) |
 | RoasteryInfo | Dane palarni załadowane | Wyświetl nazwę i miasto z linkiem |
 | Przycisk "Oceń" | Zalogowany + display_name | Wyświetl aktywny przycisk |
 | Przycisk "Oceń" | Niezalogowany | Wyświetl przycisk z przekierowaniem do login |
+| Przycisk "Usuń" | `isOwner === true` | Wyświetl przycisk (wariant destructive) |
+| Przycisk "Usuń" | `isOwner === false` | Nie wyświetlaj przycisku |
 
 ## 10. Obsługa błędów
 
@@ -366,7 +405,7 @@ function mapCoffeeDetailToVM(
 | Brak połączenia | Banner: "Problem z połączeniem. Sprawdź połączenie internetowe." + przycisk "Spróbuj ponownie" |
 | Timeout | Banner: "Serwer nie odpowiada. Spróbuj ponownie później." |
 
-### 10.2 Błędy API
+### 10.2 Błędy API (pobieranie szczegółów)
 
 | Kod | Obsługa |
 |-----|---------|
@@ -374,7 +413,16 @@ function mapCoffeeDetailToVM(
 | 404 | Banner: "Kawa nie została znaleziona." + link "Powrót do listy kaw" |
 | 500 | Banner: "Wystąpił błąd serwera. Spróbuj ponownie później." |
 
-### 10.3 Stany UI
+### 10.3 Błędy API (usuwanie kawy)
+
+| Kod | Obsługa |
+|-----|---------|
+| 401 | Toast: "Musisz być zalogowany, aby usunąć kawę." |
+| 403 | Toast: "Nie masz uprawnień do usunięcia tej kawy." |
+| 404 | Toast: "Kawa nie została znaleziona." |
+| 500 | Toast: "Wystąpił błąd podczas usuwania. Spróbuj ponownie." |
+
+### 10.4 Stany UI
 
 | Stan | Prezentacja |
 |------|-------------|
@@ -398,6 +446,7 @@ function mapCoffeeDetailToVM(
    - `CoffeeHeader` - nagłówek z oceną i badge'ami
    - `MetricsSection` i `MetricDisplay` - sekcja metryk
    - `RateCoffeeButton` - przycisk z logiką dostępu
+   - `DeleteCoffeeButton` - przycisk usuwania z dialogiem potwierdzenia (tylko dla właściciela)
 
 4. **Implementacja `CoffeeDetailView`**
    - Wykorzystanie `useCoffeeDetail`
@@ -418,6 +467,8 @@ function mapCoffeeDetailToVM(
 7. **Testowanie**
    - Sprawdzenie wyświetlania danych kawy
    - Sprawdzenie logiki przycisku "Oceń" dla różnych stanów sesji
+   - Sprawdzenie widoczności przycisku "Usuń" tylko dla właściciela
+   - Sprawdzenie flow usuwania kawy (dialog potwierdzenia, przekierowanie)
    - Sprawdzenie obsługi błędu 404
    - Sprawdzenie dostępności (ARIA)
 
