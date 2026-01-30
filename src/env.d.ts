@@ -8,6 +8,8 @@ interface ImportMetaEnv {
   readonly PUBLIC_SUPABASE_URL: string;
   readonly PUBLIC_SUPABASE_ANON_KEY: string;
   readonly SUPABASE_SERVICE_ROLE_KEY: string;
+  /** Base URL for auth redirects (e.g. email confirmation). Defaults to request origin if unset. */
+  readonly SITE_URL?: string;
 }
 
 interface ImportMeta {
