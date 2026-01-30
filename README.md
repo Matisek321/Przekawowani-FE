@@ -25,12 +25,14 @@ For full product requirements, see `.ai/prd.md`.
 - Backend:
   - Supabase (PostgreSQL, Auth, open source; can be self-hosted)
 - Testing:
-  - Vitest (unit and integration tests)
-  - React Testing Library (component testing)
-  - Playwright (E2E tests)
+  - Vitest ^2.1.5 (unit and integration tests, jsdom environment, v8 coverage)
+  - React Testing Library ^16.3.2 (component testing)
+  - msw ^2.12.7 (API mocking)
+  - Playwright ^1.58.0 (E2E tests, Chromium)
 - CI/CD and Hosting:
   - GitHub Actions (CI/CD pipelines)
-  - DigitalOcean (hosting via Docker image)
+  - Cloudflare Pages (hosting via @astrojs/cloudflare adapter)
+  - Wrangler ^4.1.0 (Cloudflare deployment CLI)
 
 See `.ai/tech-stack.md` for more details.
 
@@ -77,8 +79,13 @@ Notes:
 - `npm run lint`: Run ESLint
 - `npm run lint:fix`: Auto-fix lint issues when possible
 - `npm run format`: Format the repository with Prettier
-- `npm run test`: Run unit and integration tests
+- `npm run test`: Run unit and integration tests (Vitest)
 - `npm run test:watch`: Run tests in watch mode
+- `npm run test:ui`: Run tests with Vitest UI
+- `npm run test:coverage`: Run tests with coverage report
+- `npm run test:e2e`: Run E2E tests (Playwright)
+- `npm run test:e2e:ui`: Run E2E tests with Playwright UI
+- `npm run test:e2e:report`: Show Playwright HTML report
 
 ## 6. Project scope
 
@@ -109,7 +116,8 @@ In scope (MVP):
 
 Out of scope (MVP):
 - Admin role, moderation, anti‑spam, reporting
-- Editing/deleting roasters and coffees after creation
+- Editing/deleting roasters after creation
+- Editing coffees after creation
 - Filtering/sorting by descriptive metrics
 - Recommendations and external integrations
 - Mobile apps, mobile web requirements, accessibility requirements
