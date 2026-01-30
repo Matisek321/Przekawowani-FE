@@ -5,8 +5,8 @@ import { sendPasswordResetEmail } from "../../../lib/services/auth.service";
 
 export const prerender = false;
 
-function buildRedirectUrl(requestUrl: URL) {
-  return `${requestUrl.origin}/auth/callback`;
+function buildRedirectUrl(siteUrl: string) {
+  return `${siteUrl}/auth/callback`;
 }
 
 export const POST: APIRoute = async (context) => {
@@ -17,12 +17,10 @@ export const POST: APIRoute = async (context) => {
       return jsonBadRequest("validation_failed", "Invalid payload");
     }
 
+    const siteUrl = import.meta.env.SITE_URL || new URL(context.request.url).origin;
+
     try {
-      await sendPasswordResetEmail(
-        context.locals.supabase,
-        parsed.data.email,
-        buildRedirectUrl(new URL(context.request.url))
-      );
+      await sendPasswordResetEmail(context.locals.supabase, parsed.data.email, buildRedirectUrl(siteUrl));
       return jsonOk({ ok: true }, { "Cache-Control": "no-store" });
     } catch (err: unknown) {
       const code = (err as { code?: string })?.code || (err as Error)?.message;

@@ -103,10 +103,16 @@ export async function loginUser(supabase: SupabaseClient, email: string, passwor
   };
 }
 
-export async function registerUser(supabase: SupabaseClient, email: string, password: string): Promise<RegisterResult> {
+export async function registerUser(
+  supabase: SupabaseClient,
+  email: string,
+  password: string,
+  emailRedirectTo?: string
+): Promise<RegisterResult> {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
+    options: emailRedirectTo ? { emailRedirectTo } : undefined,
   });
 
   if (error) {

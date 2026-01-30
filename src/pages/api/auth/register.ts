@@ -13,8 +13,15 @@ export const POST: APIRoute = async (context) => {
       return jsonBadRequest("validation_failed", "Invalid payload");
     }
 
+    const siteUrl = import.meta.env.SITE_URL || new URL(context.request.url).origin;
+
     try {
-      const result = await registerUser(context.locals.supabase, parsed.data.email, parsed.data.password);
+      const result = await registerUser(
+        context.locals.supabase,
+        parsed.data.email,
+        parsed.data.password,
+        siteUrl
+      );
       return json(
         {
           message: "Registration successful",
