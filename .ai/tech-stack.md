@@ -13,7 +13,7 @@ Backend - Supabase jako kompleksowe rozwiązanie backendowe:
 
 CI/CD i Hosting:
 - Github Actions do tworzenia pipeline’ów CI/CD
-- DigitalOcean do hostowania aplikacji za pośrednictwem obrazu docker
+- Cloudflare Pages jako hosting aplikacji Astro
 
 Testowanie:
 - Vitest ^2.1.5 - framework do testów jednostkowych i integracyjnych
