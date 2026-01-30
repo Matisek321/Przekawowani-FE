@@ -25,10 +25,7 @@ export interface UseCoffeeDeleteResult extends UseCoffeeDeleteState {
  * @param coffeeId - The UUID of the coffee to delete
  * @param accessToken - The user's access token for authentication
  */
-export function useCoffeeDelete(
-  coffeeId: string,
-  accessToken: string | null
-): UseCoffeeDeleteResult {
+export function useCoffeeDelete(coffeeId: string, accessToken: string | null): UseCoffeeDeleteResult {
   const [state, setState] = useState<UseCoffeeDeleteState>({
     isDeleting: false,
     error: null,

@@ -196,8 +196,8 @@ function DeleteCoffeeButton({ coffeeId, coffeeName }: DeleteCoffeeButtonProps) {
         <AlertDialogHeader>
           <AlertDialogTitle>Czy na pewno chcesz usunąć tę kawę?</AlertDialogTitle>
           <AlertDialogDescription>
-            Ta akcja jest nieodwracalna. Kawa &quot;{coffeeName}&quot; oraz wszystkie powiązane oceny
-            zostaną trwale usunięte.
+            Ta akcja jest nieodwracalna. Kawa &quot;{coffeeName}&quot; oraz wszystkie powiązane oceny zostaną trwale
+            usunięte.
           </AlertDialogDescription>
         </AlertDialogHeader>
         {error && (
