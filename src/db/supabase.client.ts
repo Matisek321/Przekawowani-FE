@@ -3,10 +3,13 @@ import { createServerClient, createBrowserClient, type CookieOptionsWithName } f
 
 import type { Database } from "./database.types";
 
-const supabaseUrl = import.meta.env.SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
-
 export type SupabaseClient = ReturnType<typeof createServerClient<Database>>;
+
+export interface SupabaseEnv {
+  SUPABASE_URL: string;
+  SUPABASE_KEY: string;
+  SUPABASE_SERVICE_ROLE_KEY?: string;
+}
 
 export const cookieOptions: CookieOptionsWithName = {
   path: "/",
@@ -23,8 +26,13 @@ function parseCookieHeader(cookieHeader: string): { name: string; value: string 
   });
 }
 
-export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
-  return createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+export const createSupabaseServerInstance = (context: {
+  headers: Headers;
+  cookies: AstroCookies;
+  env: SupabaseEnv;
+}) => {
+  const { env } = context;
+  return createServerClient<Database>(env.SUPABASE_URL, env.SUPABASE_KEY, {
     cookieOptions,
     cookies: {
       getAll() {

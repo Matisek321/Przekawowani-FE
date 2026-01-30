@@ -11,13 +11,13 @@ export const prerender = false;
  */
 export const DELETE: APIRoute = async (context) => {
   try {
-    const { user, supabase } = context.locals;
+    const { user, supabase, supabaseEnv } = context.locals;
 
     if (!user) {
       return jsonUnauthorized("unauthorized", "Authentication required");
     }
 
-    await deleteAccount(supabase, user.id);
+    await deleteAccount(supabase, user.id, supabaseEnv);
 
     return jsonOk({ success: true }, { "Cache-Control": "no-store" });
   } catch (err) {

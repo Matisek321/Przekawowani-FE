@@ -1,6 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
 
-import { createSupabaseServerInstance } from "../db/supabase.client";
+import { createSupabaseServerInstance, type SupabaseEnv } from "../db/supabase.client";
 import { jsonUnauthorized } from "../lib/http";
 
 const PUBLIC_PATHS = [
@@ -22,12 +22,29 @@ function buildReturnTo(url: URL) {
   return `${url.pathname}${url.search}`;
 }
 
+function getSupabaseEnv(context: { locals: App.Locals }): SupabaseEnv {
+  // In Cloudflare Workers/Pages, env vars are available through runtime.env
+  // In dev mode, they're available through import.meta.env
+  const runtimeEnv = context.locals.runtime?.env;
+
+  return {
+    SUPABASE_URL: runtimeEnv?.SUPABASE_URL ?? import.meta.env.SUPABASE_URL,
+    SUPABASE_KEY: runtimeEnv?.SUPABASE_KEY ?? import.meta.env.SUPABASE_KEY,
+    SUPABASE_SERVICE_ROLE_KEY:
+      runtimeEnv?.SUPABASE_SERVICE_ROLE_KEY ?? import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
+  };
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
   const { request, cookies, url, redirect } = context;
+
+  const supabaseEnv = getSupabaseEnv(context);
+  context.locals.supabaseEnv = supabaseEnv;
 
   const supabase = createSupabaseServerInstance({
     headers: request.headers,
     cookies,
+    env: supabaseEnv,
   });
 
   context.locals.supabase = supabase;
